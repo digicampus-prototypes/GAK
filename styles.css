@@ -255,6 +255,72 @@ h1 {
   padding-left: 1.05rem;
 }
 
+.table-wrap {
+  margin-top: 0.6rem;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  overflow-x: auto;
+}
+
+.human-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 720px;
+}
+
+.human-table th,
+.human-table td {
+  border-bottom: 1px solid #e4ebf3;
+  text-align: left;
+  padding: 0.56rem 0.58rem;
+  vertical-align: top;
+  font-size: 0.87rem;
+}
+
+.human-table th {
+  background: #f4f8fc;
+  color: #233a53;
+  font-family: "Space Grotesk", "IBM Plex Sans", sans-serif;
+  font-size: 0.82rem;
+}
+
+.human-table tr:last-child td {
+  border-bottom: 0;
+}
+
+.tag {
+  display: inline-block;
+  border-radius: 999px;
+  padding: 0.14rem 0.45rem;
+  border: 1px solid transparent;
+  white-space: nowrap;
+  font-size: 0.77rem;
+}
+
+.tag.good {
+  background: #e8f7ef;
+  border-color: #a6d9bc;
+  color: #0a6035;
+}
+
+.tag.bad {
+  background: #ffecec;
+  border-color: #f4b3b3;
+  color: #8b2020;
+}
+
+.tag.warn {
+  background: #fff4e6;
+  border-color: #f2c78f;
+  color: #9b5208;
+}
+
+.tag.neutral {
+  background: #f3f6fa;
+  border-color: #cdd8e6;
+  color: #30455f;
+}
+
 .timeline-card li,
 .refs-card li {
   color: var(--ink-soft);

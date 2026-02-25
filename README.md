@@ -7,6 +7,8 @@ Static decision-tree web app that helps municipalities build a branch-specific, 
 - Presents layered questions.
 - Branches into tailored advice based on selected answers.
 - Generates a practical implementation plan with legal-governance checkpoints.
+- Adds `menselijke maat` analysis with a 10-case stress test (better/worse/quicker/easier vs current system).
+- Uses 11 layers, including audience, fallback, stress-test coverage, and outcome measurement maturity.
 - Works as a pure static site (no build tool, no backend).
 
 ## Run locally
