@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EU Responsible AI Roadmap for Municipalities</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Space+Grotesk:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="background-glow" aria-hidden="true"></div>
+    <header class="hero">
+      <p class="eyebrow">Municipal AI Navigator (EU)</p>
+      <h1>Build a Responsible AI Plan in Layers</h1>
+      <p>
+        Answer each layer. The tool branches into a tailored step-by-step implementation path for municipalities.
+      </p>
+    </header>
+
+    <main class="layout">
+      <section class="card question-card reveal">
+        <div class="card-meta">
+          <span id="layerBadge" class="layer-badge"></span>
+          <div class="actions">
+            <button id="backBtn" class="btn btn-muted" type="button">Back</button>
+            <button id="restartBtn" class="btn btn-muted" type="button">Start over</button>
+          </div>
+        </div>
+        <h2 id="questionTitle"></h2>
+        <p id="questionHelp" class="support-text"></p>
+        <div id="options" class="options"></div>
+      </section>
+
+      <aside class="card path-card reveal">
+        <h2>Your Path</h2>
+        <ol id="routeList"></ol>
+        <button id="downloadBtn" class="btn btn-primary" type="button" disabled>
+          Download plan (.md)
+        </button>
+      </aside>
+
+      <section id="resultCard" class="card result-card hidden reveal">
+        <h2 id="resultTitle"></h2>
+        <p id="resultIntro" class="support-text"></p>
+        <div id="profilePills" class="pill-row"></div>
+
+        <h3>Step-by-step plan</h3>
+        <ol id="planSteps" class="plan-list"></ol>
+
+        <h3>Why this branch</h3>
+        <ul id="branchReasons"></ul>
+      </section>
+
+      <section class="card timeline-card reveal">
+        <h2>EU timeline snapshot (as of 25 February 2026)</h2>
+        <ul>
+          <li>2 February 2025: AI literacy and prohibited-practice rules started to apply.</li>
+          <li>2 August 2025: GPAI-model obligations and governance rules started to apply.</li>
+          <li>2 August 2026: Most AI Act obligations and enforcement begin (incl. Annex III high-risk systems).</li>
+          <li>2 August 2027: High-risk AI embedded in regulated products gets extended transition.</li>
+        </ul>
+      </section>
+
+      <section class="card refs-card reveal">
+        <h2>Primary references</h2>
+        <ul>
+          <li>
+            <a href="https://eur-lex.europa.eu/eli/reg/2024/1689/oj" target="_blank" rel="noopener noreferrer"
+              >AI Act (Regulation (EU) 2024/1689)</a
+            >
+          </li>
+          <li>
+            <a
+              href="https://digital-strategy.ec.europa.eu/en/policies/regulatory-framework-ai"
+              target="_blank"
+              rel="noopener noreferrer"
+              >European Commission AI Act overview and timeline</a
+            >
+          </li>
+          <li>
+            <a href="https://eur-lex.europa.eu/eli/reg/2016/679/oj" target="_blank" rel="noopener noreferrer"
+              >GDPR (Regulation (EU) 2016/679)</a
+            >
+          </li>
+        </ul>
+        <p class="legal-note">
+          Informational planning aid, not legal advice. Validate decisions with municipal legal counsel and your
+          national competent authority.
+        </p>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
