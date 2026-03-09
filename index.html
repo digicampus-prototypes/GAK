@@ -1,34 +1,92 @@
 <!doctype html>
-<html lang="en">
+<html lang="nl">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>EU Responsible AI Roadmap for Municipalities</title>
+    <title>Menselijke Maat AI Verkenner</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Space+Grotesk:wght@400;500;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=Space+Grotesk:wght@400;500;700&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <div class="background-glow" aria-hidden="true"></div>
-    <header class="hero">
-      <p class="eyebrow">Municipal AI Navigator (EU)</p>
-      <h1>Build a Responsible AI Plan in Layers</h1>
-      <p>
-        Answer each layer. The tool branches into a tailored step-by-step implementation path for municipalities.
-      </p>
+    <div class="page-grid" aria-hidden="true"></div>
+    <div class="ambient ambient-left" aria-hidden="true"></div>
+    <div class="ambient ambient-right" aria-hidden="true"></div>
+
+    <header class="hero reveal">
+      <section class="hero-main">
+        <p class="eyebrow">Prototype voor gemeenten en publieke dienstverleners</p>
+        <h1>Menselijke Maat AI Verkenner</h1>
+        <p class="hero-text">
+          Een interactieve routeplanner plus onderzoekswerkbank om AI-toepassingen in de sociale zekerheid te toetsen
+          op menselijke maat, EU-verantwoordelijkheid en uitvoerbaarheid in de praktijk.
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#navigator">Start de route</a>
+          <a class="btn btn-muted" href="#werkbank">Open de werkbank</a>
+        </div>
+        <div class="hero-notes">
+          <span class="note-pill">Delft-geinspireerde lab-look</span>
+          <span class="note-pill">GitHub Pages-ready</span>
+          <span class="note-pill">LLM en chatbot als placeholder</span>
+        </div>
+      </section>
+
+      <aside class="hero-panel">
+        <div class="signal-stack">
+          <article class="signal-card signal-card-accent">
+            <p class="signal-label">[01] Beslisroute</p>
+            <h2>11 lagen</h2>
+            <p>Van AI Act-risico en gegevensgevoeligheid tot menselijke fallback en 10-case stress test.</p>
+          </article>
+          <article class="signal-card">
+            <p class="signal-label">[02] Werkbank</p>
+            <h2>Checklist + vignettes</h2>
+            <p>Ambtenaren kunnen criteria invullen, worst-case users bespreken en burgerperspectief vastleggen.</p>
+          </article>
+          <article class="signal-card">
+            <p class="signal-label">[03] Toekomst</p>
+            <h2>LLM en chatbot</h2>
+            <p>Placeholder-modules tonen wat later kan met backend, validatie, logging en privacywaarborgen.</p>
+          </article>
+        </div>
+      </aside>
     </header>
 
-    <main class="layout">
+    <section class="module-strip reveal">
+      <article class="module-card">
+        <p class="module-code">[A]</p>
+        <h2>Checklist menselijke maat</h2>
+        <p>Een formulier dat ambtenaren zelf kunnen doorlopen op menselijkheid, last, contact, monitoring en indicatoren.</p>
+      </article>
+      <article class="module-card">
+        <p class="module-code">[B]</p>
+        <h2>Worst-case vignettes</h2>
+        <p>Interactieve casussen om verbeeldingskracht te vergroten en verborgen fricties in uitvoering zichtbaar te maken.</p>
+      </article>
+      <article class="module-card">
+        <p class="module-code">[C]</p>
+        <h2>Burgerperspectief</h2>
+        <p>Een korte vragenlijstsjabloon om sneller signalen uit het bestaande proces mee te nemen in het ontwerp.</p>
+      </article>
+      <article class="module-card">
+        <p class="module-code">[D]</p>
+        <h2>Backend placeholders</h2>
+        <p>Ruimte voor documentanalyse met LLM en een interviewchatbot zodra er meer dan GitHub Pages beschikbaar is.</p>
+      </article>
+    </section>
+
+    <main class="layout" id="navigator">
       <section class="card question-card reveal">
         <div class="card-meta">
           <span id="layerBadge" class="layer-badge"></span>
           <div class="actions">
-            <button id="backBtn" class="btn btn-muted" type="button">Back</button>
-            <button id="restartBtn" class="btn btn-muted" type="button">Start over</button>
+            <button id="backBtn" class="btn btn-muted" type="button">Terug</button>
+            <button id="restartBtn" class="btn btn-muted" type="button">Opnieuw</button>
           </div>
         </div>
         <h2 id="questionTitle"></h2>
@@ -37,39 +95,48 @@
       </section>
 
       <aside class="card path-card reveal">
-        <h2>Your Path</h2>
+        <div class="section-head">
+          <div>
+            <p class="section-kicker">Route</p>
+            <h2>Jullie pad</h2>
+          </div>
+        </div>
         <ol id="routeList"></ol>
-        <button id="downloadBtn" class="btn btn-primary" type="button" disabled>
-          Download plan (.md)
-        </button>
+        <button id="downloadBtn" class="btn btn-primary" type="button" disabled>Download rapport (.md)</button>
+        <p class="mini-note">Het rapport neemt ook checklist, vignettes en burgerperspectief mee.</p>
       </aside>
 
       <section id="resultCard" class="card result-card hidden reveal">
-        <h2 id="resultTitle"></h2>
+        <div class="section-head">
+          <div>
+            <p class="section-kicker">Uitkomst</p>
+            <h2 id="resultTitle"></h2>
+          </div>
+        </div>
         <p id="resultIntro" class="support-text"></p>
         <div id="profilePills" class="pill-row"></div>
 
-        <h3>Step-by-step plan</h3>
+        <h3>Stappenplan</h3>
         <ol id="planSteps" class="plan-list"></ol>
 
-        <h3>Why this branch</h3>
-        <ul id="branchReasons"></ul>
+        <h3>Waarom deze route</h3>
+        <ul id="branchReasons" class="detail-list"></ul>
 
-        <h3>Menselijke maat stress test (10 hardest cases)</h3>
+        <h3>Menselijke maat stress test</h3>
         <p class="support-text">
-          Menselijke maat here means practical fairness and human-centered service quality for residents who are
-          usually hardest to serve.
+          Hier betekent menselijke maat: een mensgerichte, proportionele en toegankelijke dienstverlening, juist voor
+          mensen die normaal het snelst tussen systeemstappen vastlopen.
         </p>
         <div class="table-wrap">
           <table class="human-table">
             <thead>
               <tr>
-                <th>Case</th>
-                <th>Better</th>
-                <th>Worse risk</th>
-                <th>Quicker</th>
-                <th>Easier</th>
-                <th>Watchpoint</th>
+                <th>Casus</th>
+                <th>Beter</th>
+                <th>Slechter risico</th>
+                <th>Sneller</th>
+                <th>Makkelijker</th>
+                <th>Aandachtspunt</th>
               </tr>
             </thead>
             <tbody id="humanTableBody"></tbody>
@@ -78,23 +145,140 @@
         <p id="humanSummary" class="support-text"></p>
       </section>
 
+      <section class="card checklist-card reveal" id="werkbank">
+        <div class="section-head">
+          <div>
+            <p class="section-kicker">Werkbank 1</p>
+            <h2>Checklist menselijke maat</h2>
+          </div>
+          <span id="checklistBadge" class="status-badge">Nog niet ingevuld</span>
+        </div>
+        <p class="support-text">
+          Een zelfinvulformulier voor ambtenaren. Deze versie levert een voorlopige score en aandachtspunten op.
+        </p>
+        <div id="checklistGrid" class="criteria-grid"></div>
+        <p id="checklistSummary" class="support-text"></p>
+      </section>
+
+      <section class="card vignette-card reveal">
+        <div class="section-head">
+          <div>
+            <p class="section-kicker">Werkbank 2</p>
+            <h2>Vignettes voor worst-case users</h2>
+          </div>
+          <span id="vignetteBadge" class="status-badge">Nog niet besproken</span>
+        </div>
+        <p class="support-text">
+          Gebruik deze casussen in een teamgesprek om de verbeeldingskracht van ontwerpers, beleidsmakers en
+          uitvoerders te vergroten.
+        </p>
+        <div id="vignetteTabs" class="chip-row"></div>
+        <div class="vignette-panel">
+          <div id="vignetteMeta" class="vignette-meta"></div>
+          <h3 id="vignetteTitle"></h3>
+          <p id="vignetteScenario" class="support-text"></p>
+          <ul id="vignettePrompts" class="detail-list"></ul>
+          <div id="vignetteStatuses" class="status-row"></div>
+          <label class="textarea-label" for="vignetteNotes">Workshopnotities</label>
+          <textarea
+            id="vignetteNotes"
+            class="note-input"
+            rows="4"
+            placeholder="Wat moet aangepast worden om deze gebruiker niet slechter af te laten zijn?"
+          ></textarea>
+        </div>
+        <p id="vignetteSummary" class="support-text"></p>
+      </section>
+
+      <section class="card survey-card reveal">
+        <div class="section-head">
+          <div>
+            <p class="section-kicker">Werkbank 3</p>
+            <h2>Korte vragenlijst burgerperspectief</h2>
+          </div>
+          <span id="surveyBadge" class="status-badge">Sjabloon</span>
+        </div>
+        <p class="support-text">
+          Een compacte vragenlijst die gemeenten kunnen gebruiken in interviews of aan de balie om signalen uit het
+          huidige proces mee te nemen.
+        </p>
+        <div id="surveyGrid" class="criteria-grid"></div>
+        <p id="surveySummary" class="support-text"></p>
+      </section>
+
+      <section class="card future-card reveal">
+        <div class="section-head">
+          <div>
+            <p class="section-kicker">Werkbank 4</p>
+            <h2>Toekomstmodules met backend</h2>
+          </div>
+        </div>
+        <p class="support-text">
+          Deze onderdelen zijn bewust placeholders. Ze passen inhoudelijk in het prototype, maar vragen meer dan een
+          statische GitHub Pages-hosting.
+        </p>
+        <div class="future-grid">
+          <article class="future-module">
+            <div class="future-topline">
+              <span class="placeholder-pill">Backend nodig</span>
+              <span class="placeholder-pill subtle">Validatie vereist</span>
+            </div>
+            <h3>LLM-gedreven documentassessment</h3>
+            <p>
+              Een taalmodel leest beleidsdocumenten, markeert aandachtspunten en geeft een voorlopig rapportcijfer op
+              basis van de criteria menselijke maat.
+            </p>
+            <ul class="detail-list">
+              <li>Benodigd: beveiligde API, promptbeheer, validatieset, logging en menselijke review.</li>
+              <li>Extra eis: juridische en ethische validatie voordat scores of adviezen in besluitvorming landen.</li>
+            </ul>
+            <button class="btn btn-disabled" type="button" disabled>Documentscan later koppelen</button>
+          </article>
+
+          <article class="future-module">
+            <div class="future-topline">
+              <span class="placeholder-pill">Backend nodig</span>
+              <span class="placeholder-pill subtle">Consent + opslag</span>
+            </div>
+            <h3>Chatbot-interview voor burgers</h3>
+            <p>
+              Een begeleide interviewflow die inwoners vragen stelt over begrijpelijkheid, contact, administratieve last
+              en ervaren rechtvaardigheid in het bestaande proces.
+            </p>
+            <ul class="detail-list">
+              <li>Benodigd: sessiebeheer, consent, moderatie, opslagbeleid en duidelijke escalatie naar een mens.</li>
+              <li>Tijdelijke fallback: gebruik voorlopig de vragenlijst hierboven als handmatig interviewscript.</li>
+            </ul>
+            <button class="btn btn-disabled" type="button" disabled>Interviewbot later koppelen</button>
+          </article>
+        </div>
+      </section>
+
       <section class="card timeline-card reveal">
-        <h2>EU timeline snapshot (as of 25 February 2026)</h2>
-        <ul>
-          <li>2 February 2025: AI literacy and prohibited-practice rules started to apply.</li>
-          <li>2 August 2025: GPAI-model obligations and governance rules started to apply.</li>
-          <li>2 August 2026: Most AI Act obligations and enforcement begin (incl. Annex III high-risk systems).</li>
-          <li>2 August 2027: High-risk AI embedded in regulated products gets extended transition.</li>
+        <div class="section-head">
+          <div>
+            <p class="section-kicker">EU-context</p>
+            <h2>AI Act tijdlijn</h2>
+          </div>
+        </div>
+        <ul class="detail-list">
+          <li>2 februari 2025: regels over AI-geletterdheid en verboden praktijken zijn gaan gelden.</li>
+          <li>2 augustus 2025: verplichtingen voor GPAI-modellen en governance zijn gaan gelden.</li>
+          <li>2 augustus 2026: het grootste deel van de AI Act gaat gelden, inclusief veel high-risk verplichtingen.</li>
+          <li>2 augustus 2027: extra overgang voor high-risk AI in gereguleerde producten.</li>
         </ul>
       </section>
 
       <section class="card refs-card reveal">
-        <h2>Primary references</h2>
-        <ul>
+        <div class="section-head">
+          <div>
+            <p class="section-kicker">Bronnen</p>
+            <h2>Primaire referenties</h2>
+          </div>
+        </div>
+        <ul class="detail-list">
           <li>
-            <a href="https://www.instituutgak.nl" target="_blank" rel="noopener noreferrer"
-              >Project context: Instituut Gak</a
-            >
+            <a href="https://www.instituutgak.nl" target="_blank" rel="noopener noreferrer">Projectcontext: Instituut Gak</a>
           </li>
           <li>
             <a href="https://eur-lex.europa.eu/eli/reg/2024/1689/oj" target="_blank" rel="noopener noreferrer"
@@ -106,7 +290,7 @@
               href="https://digital-strategy.ec.europa.eu/en/policies/regulatory-framework-ai"
               target="_blank"
               rel="noopener noreferrer"
-              >European Commission AI Act overview and timeline</a
+              >Europese Commissie: regulatory framework for AI</a
             >
           </li>
           <li>
@@ -116,8 +300,8 @@
           </li>
         </ul>
         <p class="legal-note">
-          Informational planning aid, not legal advice. Validate decisions with municipal legal counsel and your
-          national competent authority.
+          Informatieve prototype-output, geen juridisch advies. Laat classificatie en implementatie altijd toetsen door
+          juridische experts, privacyexperts en de verantwoordelijke publieke organisatie.
         </p>
       </section>
     </main>
