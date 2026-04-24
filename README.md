@@ -1,30 +1,32 @@
-# Municipal AI Navigator (EU)
+# Menselijke Maat AI Verkenner
 
-Static decision-tree web app that helps municipalities build a branch-specific, step-by-step plan for responsible AI implementation in the EU.
+Statische prototype-site voor gemeenten en publieke dienstverleners. De site gebruikt de aangeleverde illustraties en leidt gebruikers door losse onderdelen in plaats van een lange pagina.
 
-## What it does
+## Inhoud
 
-- Presents layered questions.
-- Branches into tailored advice based on selected answers.
-- Generates a practical implementation plan with legal-governance checkpoints.
-- Adds `menselijke maat` analysis with a 10-case stress test (better/worse/quicker/easier vs current system).
-- Uses 11 layers, including audience, fallback, stress-test coverage, and outcome measurement maturity.
-- Works as a pure static site (no build tool, no backend).
+- Landingpage met drie grote knoppen: `Kennisbank`, `Menselijke Maat Tool` en `Wat voor tools zijn er?`.
+- Gefaseerde beslisboom: eerst EU-regels, daarna checklist, worst-case users, burgerperspectief en rapport.
+- Eenvoudigere checklistvragen met korte antwoordopties.
+- Tooltips bij ingewikkelde begrippen zoals social scoring en bijzondere persoonsgegevens.
+- Voortgang wordt lokaal bewaard in de browser via `localStorage`.
+- Netter Markdown-rapport met samenvatting, tabellen, risico's en acties.
+- Placeholders voor LLM-documentanalyse en chatbot-interview die later backend nodig hebben.
 
-## Run locally
+## Lokaal openen
 
-Open `index.html` in your browser.
+Open `index.html` in de browser.
 
-## Deploy to GitHub Pages
+## GitHub Pages
 
-1. Push the repository to GitHub.
-2. In GitHub, open `Settings -> Pages`.
-3. Under `Build and deployment`, choose `Deploy from a branch`.
-4. Select your main branch and the root folder (`/`).
-5. Save. Your site will be live on GitHub Pages URL after deployment finishes.
+1. Push de map naar een GitHub-repository.
+2. Ga naar `Settings -> Pages`.
+3. Kies `Deploy from a branch`.
+4. Selecteer de hoofdbranch en map `/`.
+5. Publiceer de site.
 
-## Files
+## Bestanden
 
 - `index.html`
 - `styles.css`
 - `app.js`
+- `assets/`

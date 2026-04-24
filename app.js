@@ -1,1216 +1,709 @@
-const QUESTIONS = {
-  stage: {
-    layer: 1,
-    short: "Starting point",
-    prompt: "Where is your municipality in the AI journey?",
-    help: "Pick the option that best matches your current status.",
-    options: [
-      {
-        value: "explore",
-        label: "Exploring use cases",
-        note: "No pilots are running yet; you are prioritizing ideas.",
-        next: "rightsImpact",
-      },
-      {
-        value: "pilot",
-        label: "Running one or more pilots",
-        note: "Testing solutions in real municipal workflows.",
-        next: "rightsImpact",
-      },
-      {
-        value: "live",
-        label: "Already in live operations",
-        note: "AI is used for real municipal processes today.",
-        next: "rightsImpact",
-      },
-    ],
-  },
-  rightsImpact: {
-    layer: 2,
-    short: "Public-rights impact",
-    prompt:
-      "Will AI output influence rights or access to public services (benefits, permits, housing, education, policing, employment)?",
-    help: "If unsure, pick the cautious option.",
-    options: [
-      {
-        value: "yes",
-        label: "Yes, it can affect rights or access",
-        note: "Residents could be materially affected by AI-supported decisions.",
-        next: "prohibitedSignals",
-      },
-      {
-        value: "unsure",
-        label: "Not sure yet",
-        note: "Impact exists but boundaries are still unclear.",
-        next: "prohibitedSignals",
-      },
-      {
-        value: "no",
-        label: "No, mostly internal support",
-        note: "Mainly drafting, triage, productivity, or back-office support.",
-        next: "prohibitedSignals",
-      },
-    ],
-  },
-  prohibitedSignals: {
-    layer: 3,
-    short: "Prohibited-use check",
-    prompt:
-      "Does the use case include possible prohibited practices (social scoring, untargeted face scraping, certain emotion recognition uses, or similar)?",
-    help: "If yes, your final branch will force a stop-and-redesign path.",
-    options: [
-      {
-        value: "yes",
-        label: "Yes or likely yes",
-        note: "At least one prohibited pattern appears in scope.",
-        next: "dataSensitivity",
-      },
-      {
-        value: "unsure",
-        label: "Unclear; legal interpretation needed",
-        note: "You need legal review before procurement or rollout.",
-        next: "dataSensitivity",
-      },
-      {
-        value: "no",
-        label: "No prohibited patterns in scope",
-        note: "Proceed to data and human-impact checks.",
-        next: "dataSensitivity",
-      },
-    ],
-  },
-  dataSensitivity: {
-    layer: 4,
-    short: "Data sensitivity",
-    prompt: "What is the highest data sensitivity in scope?",
-    help: "Choose the highest level you expect in production.",
-    options: [
-      {
-        value: "anonymous",
-        label: "Anonymous or synthetic only",
-        note: "No personal data is processed.",
-        next: "automation",
-      },
-      {
-        value: "personal",
-        label: "Personal data",
-        note: "Data identifies or can identify residents or staff.",
-        next: "automation",
-      },
-      {
-        value: "special",
-        label: "Special category or vulnerable-group data",
-        note: "Health, children, or similar protected-context data.",
-        next: "automation",
-      },
-      {
-        value: "biometric",
-        label: "Biometric or remote identification data",
-        note: "Face, voice, gait, or related biometric processing.",
-        next: "automation",
-      },
-    ],
-  },
-  automation: {
-    layer: 5,
-    short: "Decision automation",
-    prompt: "How is AI used in decision-making?",
-    help: "This strongly affects safeguards and menselijke maat outcomes.",
-    options: [
-      {
-        value: "fully",
-        label: "Fully automated decision or scoring",
-        note: "Output may directly determine a service or legal effect.",
-        next: "sourcing",
-      },
-      {
-        value: "human_loop",
-        label: "Human-in-the-loop decision support",
-        note: "Staff can override and remain accountable.",
-        next: "sourcing",
-      },
-      {
-        value: "assistive",
-        label: "Assistive only (no direct decision impact)",
-        note: "Drafting, summarization, and operational support only.",
-        next: "sourcing",
-      },
-    ],
-  },
-  sourcing: {
-    layer: 6,
-    short: "Technology sourcing",
-    prompt: "How will the municipality source the AI capability?",
-    help: "Supply chain choices affect procurement and audit controls.",
-    options: [
-      {
-        value: "vendor",
-        label: "Third-party vendor or GPAI service",
-        note: "External provider hosts model and/or application.",
-        next: "procurement",
-      },
-      {
-        value: "hybrid",
-        label: "Hybrid (vendor + local custom components)",
-        note: "External model with municipal integration.",
-        next: "procurement",
-      },
-      {
-        value: "inhouse",
-        label: "Primarily in-house model/system",
-        note: "Municipality controls model lifecycle directly.",
-        next: "procurement",
-      },
-    ],
-  },
-  procurement: {
-    layer: 7,
-    short: "Procurement readiness",
-    prompt: "Are AI-specific procurement controls already in place?",
-    help: "Think audit rights, logs, incident notification, and data-processing clauses.",
-    options: [
-      {
-        value: "ready",
-        label: "Yes, ready and standardized",
-        note: "Controls are embedded in tender and contract templates.",
-        next: "audience",
-      },
-      {
-        value: "partial",
-        label: "Partly; some controls exist",
-        note: "Coverage is inconsistent across teams or contracts.",
-        next: "audience",
-      },
-      {
-        value: "none",
-        label: "Not yet",
-        note: "No AI-specific guardrails are formally defined.",
-        next: "audience",
-      },
-    ],
-  },
-  audience: {
-    layer: 8,
-    short: "Primary users",
-    prompt: "Who uses the AI-supported workflow directly?",
-    help: "This defines whether impacts are direct for residents or mainly internal.",
-    options: [
-      {
-        value: "civilians",
-        label: "Residents/civilians",
-        note: "Tool interaction is primarily citizen-facing.",
-        next: "fallback",
-      },
-      {
-        value: "civil_servants",
-        label: "Civil servants",
-        note: "Used mainly by municipal staff in service delivery.",
-        next: "fallback",
-      },
-      {
-        value: "both",
-        label: "Both residents and civil servants",
-        note: "Mixed workflow or shared system.",
-        next: "fallback",
-      },
-    ],
-  },
-  fallback: {
-    layer: 9,
-    short: "Human fallback",
-    prompt: "If the AI flow fails or a person struggles, what human fallback is guaranteed?",
-    help: "A strong fallback is central to menselijke maat.",
-    options: [
-      {
-        value: "immediate",
-        label: "Immediate same-contact handover",
-        note: "Person can switch to a human channel right away.",
-        next: "stressCoverage",
-      },
-      {
-        value: "delayed",
-        label: "Delayed callback/follow-up",
-        note: "Human support exists, but not immediately.",
-        next: "stressCoverage",
-      },
-      {
-        value: "none",
-        label: "No defined human fallback",
-        note: "No guaranteed route to human support.",
-        next: "stressCoverage",
-      },
-    ],
-  },
-  stressCoverage: {
-    layer: 10,
-    short: "10-case stress test",
-    prompt:
-      "How many of your 10 hardest resident profiles have you tested end-to-end against the current system baseline?",
-    help: "The higher the coverage, the stronger the menselijke maat evidence.",
-    options: [
-      {
-        value: "low",
-        label: "0 to 2 tested",
-        note: "Very limited stress testing so far.",
-        next: "measurement",
-      },
-      {
-        value: "medium",
-        label: "3 to 6 tested",
-        note: "Partial stress-test coverage.",
-        next: "measurement",
-      },
-      {
-        value: "high",
-        label: "7 to 10 tested",
-        note: "Broad stress testing done before scaling.",
-        next: "measurement",
-      },
-    ],
-  },
-  measurement: {
-    layer: 11,
-    short: "Outcome measurement",
-    prompt:
-      "Do you measure outcomes versus current systems on better/worse/quicker/easier for both residents and civil servants?",
-    help: "Without this baseline comparison, menselijke maat claims stay unproven.",
-    options: [
-      {
-        value: "robust",
-        label: "Yes, robust and recurring",
-        note: "Metrics are segmented and reviewed periodically.",
-        next: "result",
-      },
-      {
-        value: "partial",
-        label: "Partly",
-        note: "Some metrics exist but not complete or segmented.",
-        next: "result",
-      },
-      {
-        value: "none",
-        label: "Not yet",
-        note: "No systematic comparison to current systems.",
-        next: "result",
-      },
-    ],
-  },
-};
+const STORAGE_KEY = "menselijke-maat-verkenner-v2";
 
-const answerLookup = {
-  stage: {
-    explore: "Exploring",
-    pilot: "Pilot",
-    live: "Live operations",
-  },
-  rightsImpact: {
-    yes: "Rights impact: Yes",
-    unsure: "Rights impact: Unclear",
-    no: "Rights impact: No",
-  },
-  prohibitedSignals: {
-    yes: "Prohibited risk flagged",
-    unsure: "Prohibited risk unclear",
-    no: "No prohibited indicators",
-  },
-  dataSensitivity: {
-    anonymous: "Anonymous data",
-    personal: "Personal data",
-    special: "Special/vulnerable data",
-    biometric: "Biometric data",
-  },
-  automation: {
-    fully: "Fully automated decisioning",
-    human_loop: "Human-in-the-loop",
-    assistive: "Assistive use only",
-  },
-  sourcing: {
-    vendor: "Vendor/GPAI sourcing",
-    hybrid: "Hybrid sourcing",
-    inhouse: "In-house system",
-  },
-  procurement: {
-    ready: "Procurement ready",
-    partial: "Procurement partial",
-    none: "Procurement not ready",
-  },
-  audience: {
-    civilians: "Direct residents",
-    civil_servants: "Civil servants only",
-    both: "Residents + civil servants",
-  },
-  fallback: {
-    immediate: "Immediate human fallback",
-    delayed: "Delayed human fallback",
-    none: "No fallback",
-  },
-  stressCoverage: {
-    low: "10-case coverage: low",
-    medium: "10-case coverage: medium",
-    high: "10-case coverage: high",
-  },
-  measurement: {
-    robust: "Measurement: robust",
-    partial: "Measurement: partial",
-    none: "Measurement: none",
-  },
-};
+const PHASES = ["eu", "checklist", "vignettes", "citizens", "report"];
 
-const PERSONAS = [
+const EU_QUESTIONS = [
   {
-    id: "literacy",
-    label: "Resident with low literacy",
-    watchpoint: "Plain language and guided prompts.",
-    plainLanguage: true,
-    highNeed: true,
+    id: "purpose",
+    title: "Waarvoor wil je AI inzetten?",
+    help: "Kies wat het meest lijkt op de toepassing die jullie bespreken.",
+    options: [
+      ["support", "Ondersteuning", "AI helpt bij samenvatten, zoeken of voorbereiden."],
+      ["advice", "Advies aan medewerkers", "AI geeft een signaal, score of voorstel aan een ambtenaar."],
+      ["decision", "Besluit of toegang", "AI heeft invloed op een besluit of toegang tot dienstverlening."],
+    ],
   },
   {
-    id: "digital",
-    label: "Digitally low-skilled resident",
-    watchpoint: "Need assisted digital and walk-in support.",
-    digital: true,
-    highNeed: true,
+    id: "rights",
+    title: "Kan een inwoner merkbaar geraakt worden?",
+    help: "Denk aan geld, hulp, toezicht, bezwaar, wachttijd of toegang tot een regeling.",
+    options: [
+      ["yes", "Ja", "De uitkomst kan gevolgen hebben voor inwoners."],
+      ["maybe", "Misschien", "Dat is nog niet goed uitgezocht."],
+      ["no", "Nee", "Het blijft intern en zonder effect op dienstverlening."],
+    ],
   },
   {
-    id: "visual",
-    label: "Resident with visual impairment",
-    watchpoint: "Screen-reader and contrast accessibility.",
-    accessibility: true,
-    highNeed: true,
+    id: "prohibited",
+    title: "Zit er mogelijk een verboden AI-praktijk in?",
+    help: "Bij twijfel: kies 'onzeker' en laat dit eerst juridisch toetsen.",
+    tooltip:
+      "Social scoring betekent dat mensen een algemene score krijgen op basis van gedrag, kenmerken of voorspellingen, waarna toegang tot diensten of rechten kan veranderen. De AI Act verbiedt bepaalde vormen hiervan.",
+    options: [
+      ["yes", "Ja", "Bijvoorbeeld social scoring, verboden biometrie of manipulatieve sturing."],
+      ["maybe", "Onzeker", "Er is juridische duiding nodig voordat je verder gaat."],
+      ["no", "Nee", "Er zijn geen duidelijke signalen van verboden praktijken."],
+    ],
   },
   {
-    id: "hearing",
-    label: "Resident with hearing impairment",
-    watchpoint: "Text-first alternatives for voice/phone steps.",
-    accessibility: true,
-    highNeed: true,
+    id: "data",
+    title: "Welke data gebruikt de toepassing?",
+    help: "Kies het gevoeligste type data dat in de praktijk voorkomt.",
+    tooltip:
+      "Bijzondere persoonsgegevens zijn bijvoorbeeld gegevens over gezondheid, afkomst, religie of biometrische kenmerken. Daarvoor gelden zwaardere privacy-eisen.",
+    options: [
+      ["anonymous", "Anoniem of synthetisch", "Geen persoonsgegevens."],
+      ["personal", "Persoonsgegevens", "Data kan tot personen herleid worden."],
+      ["sensitive", "Kwetsbaar of bijzonder", "Bijvoorbeeld gezondheid, schulden, kinderen of biometrie."],
+    ],
   },
   {
-    id: "stress",
-    label: "Resident under stress or cognitive overload",
-    watchpoint: "Empathetic human intervention capacity.",
-    empathy: true,
-    highNeed: true,
+    id: "human",
+    title: "Kan een mens de AI-uitkomst echt controleren?",
+    help: "Het gaat niet om een vinkje, maar om echte tijd, kennis en bevoegdheid om af te wijken.",
+    options: [
+      ["strong", "Ja, goed geregeld", "Medewerkers kunnen begrijpen, controleren en afwijken."],
+      ["partial", "Deels", "Er is menselijk toezicht, maar nog niet sterk genoeg."],
+      ["weak", "Nee of onduidelijk", "De AI-uitkomst zal waarschijnlijk leidend worden."],
+    ],
   },
   {
-    id: "multiproblem",
-    label: "Household with multi-problem case complexity",
-    watchpoint: "Cross-domain case ownership and escalation path.",
-    complex: true,
-    highNeed: true,
+    id: "supplier",
+    title: "Wie levert of beheert de AI?",
+    help: "Leveranciersafhankelijkheid bepaalt welke afspraken je nodig hebt.",
+    options: [
+      ["inhouse", "Eigen organisatie", "Beheer ligt vooral intern."],
+      ["hybrid", "Hybride", "Eigen proces met externe model- of softwarecomponent."],
+      ["vendor", "Leverancier", "Een externe partij levert een groot deel van de oplossing."],
+    ],
   },
   {
-    id: "language",
-    label: "Resident with language barrier",
-    watchpoint: "Translation quality and multilingual support.",
-    translation: true,
-    highNeed: true,
-  },
-  {
-    id: "offline",
-    label: "Resident with no stable device or internet",
-    watchpoint: "Offline and phone alternatives must remain available.",
-    offline: true,
-    highNeed: true,
-  },
-  {
-    id: "elderly",
-    label: "Elderly resident dependent on caregiver",
-    watchpoint: "Continuity and consent-aware support.",
-    continuity: true,
-    highNeed: true,
-  },
-  {
-    id: "trust",
-    label: "Resident with low trust in government",
-    watchpoint: "Transparency, explainability, and contestability.",
-    trust: true,
-    highNeed: true,
+    id: "procurement",
+    title: "Zijn afspraken over AI al vastgelegd?",
+    help: "Denk aan logging, auditrechten, modelwijzigingen, incidenten, data en uitleg.",
+    options: [
+      ["ready", "Ja", "Er zijn duidelijke AI-afspraken en contractvoorwaarden."],
+      ["partial", "Deels", "Er is iets geregeld, maar nog niet compleet."],
+      ["none", "Nog niet", "Er zijn nog geen specifieke AI-afspraken."],
+    ],
   },
 ];
 
+const CHECKLIST = [
+  {
+    id: "easier",
+    title: "Wordt het voor inwoners eenvoudiger?",
+    help: "Denk aan minder stappen, begrijpelijkere taal en minder kastje-muur.",
+  },
+  {
+    id: "burden",
+    title: "Neemt de administratieve last af?",
+    help: "Kijk vooral naar kwetsbare inwoners: bewijsstukken, herhaalvragen en digitale drempels.",
+  },
+  {
+    id: "contact",
+    title: "Blijft persoonlijk contact makkelijk te vinden?",
+    help: "Een inwoner moet kunnen overstappen naar een mens als de situatie daarom vraagt.",
+  },
+  {
+    id: "empathy",
+    title: "Is empathische afweging mogelijk?",
+    help: "Medewerkers moeten ruimte houden om context, uitzonderingen en hardheid mee te wegen.",
+  },
+  {
+    id: "monitoring",
+    title: "Meten jullie of menselijke maat beter of slechter wordt?",
+    help: "Gebruik indicatoren zoals begrijpelijkheid, herstelwerk, bezwaar, wachttijd en ervaren rechtvaardigheid.",
+  },
+];
+
+const SCORE_OPTIONS = [
+  ["good", "Goed geregeld", 2],
+  ["partial", "Deels", 1],
+  ["missing", "Nog niet", 0],
+];
+
+const VIGNETTES = [
+  {
+    id: "stress",
+    label: "Schuldenstress",
+    title: "Alleenstaande ouder met schuldenstress",
+    scenario:
+      "De inwoner moet meerdere bewijsstukken aanleveren, begrijpt de brief niet goed en stopt zodra een formulier terugkomt met fouten.",
+    prompts: [
+      "Waar wordt dit proces voor deze inwoner slechter dan nu?",
+      "Wanneer moet een medewerker actief contact opnemen?",
+      "Welke indicator toont vroeg dat deze groep vastloopt?",
+    ],
+  },
+  {
+    id: "caregiver",
+    label: "Mantelzorger",
+    title: "Oudere inwoner met mantelzorger",
+    scenario:
+      "De formele aanvrager en de feitelijke gebruiker zijn niet dezelfde persoon. Informatie loopt via een familielid.",
+    prompts: [
+      "Welke stap veronderstelt te veel zelfstandigheid?",
+      "Hoe regel je toestemming en overdracht zonder extra last?",
+      "Wat moet dezelfde dag nog via een mens kunnen?",
+    ],
+  },
+  {
+    id: "language",
+    label: "Taalbarriere",
+    title: "Inwoner met taalbarriere en laag vertrouwen",
+    scenario:
+      "De inwoner begrijpt formele taal slecht, vertrouwt overheidsteksten weinig en haakt af bij modelmatige toon.",
+    prompts: [
+      "Welke uitleg moet in gewone taal beschikbaar zijn?",
+      "Hoe voorkom je dat AI-taal afstandelijk of dreigend voelt?",
+      "Hoe test je of de uitleg echt wordt begrepen?",
+    ],
+  },
+  {
+    id: "worker",
+    label: "Medewerker",
+    title: "Uitvoerende medewerker met hoge caseload",
+    scenario:
+      "De tool lijkt tijd te winnen, maar uitzonderingen en subtiele context uit gesprekken raken makkelijker uit beeld.",
+    prompts: [
+      "Waar kan interne efficientie botsen met menselijke dienstverlening?",
+      "Welke override-momenten moeten zichtbaar blijven?",
+      "Welke signalen tonen dat medewerkers te veel op AI gaan leunen?",
+    ],
+  },
+];
+
+const VIGNETTE_STATUS = [
+  ["todo", "Nog niet besproken"],
+  ["done", "Besproken"],
+  ["redesign", "Herontwerp nodig"],
+];
+
+const SURVEY = [
+  {
+    id: "understand",
+    title: "Ik begrijp wat er van mij verwacht wordt.",
+    help: "Meet begrijpelijkheid van het huidige proces.",
+  },
+  {
+    id: "human",
+    title: "Ik kan een mens bereiken als ik vastloop.",
+    help: "Meet of de menselijke route echt zichtbaar en bereikbaar is.",
+  },
+  {
+    id: "fair",
+    title: "Ik voel mij eerlijk en respectvol behandeld.",
+    help: "Meet ervaren rechtvaardigheid en toon.",
+  },
+  {
+    id: "effort",
+    title: "Het proces kost mij niet onnodig veel tijd of moeite.",
+    help: "Meet administratieve last en kanaalwisselingen.",
+  },
+];
+
+const state = loadState();
+
 const dom = {
-  layerBadge: document.querySelector("#layerBadge"),
-  questionTitle: document.querySelector("#questionTitle"),
-  questionHelp: document.querySelector("#questionHelp"),
-  options: document.querySelector("#options"),
-  routeList: document.querySelector("#routeList"),
-  backBtn: document.querySelector("#backBtn"),
-  restartBtn: document.querySelector("#restartBtn"),
-  downloadBtn: document.querySelector("#downloadBtn"),
-  resultCard: document.querySelector("#resultCard"),
-  resultTitle: document.querySelector("#resultTitle"),
-  resultIntro: document.querySelector("#resultIntro"),
-  profilePills: document.querySelector("#profilePills"),
-  planSteps: document.querySelector("#planSteps"),
-  branchReasons: document.querySelector("#branchReasons"),
-  humanTableBody: document.querySelector("#humanTableBody"),
-  humanSummary: document.querySelector("#humanSummary"),
+  views: document.querySelectorAll(".view"),
+  navLinks: document.querySelectorAll("[data-view-link]"),
+  phaseLinks: document.querySelectorAll("[data-phase-link]"),
+  phases: document.querySelectorAll(".phase"),
+  questionCard: document.querySelector("#questionCard"),
+  euAnswerList: document.querySelector("#euAnswerList"),
+  euProgress: document.querySelector("#euProgress"),
+  previousQuestion: document.querySelector("#previousQuestion"),
+  checklistGrid: document.querySelector("#checklistGrid"),
+  checklistScore: document.querySelector("#checklistScore"),
+  checklistSummary: document.querySelector("#checklistSummary"),
+  vignetteTabs: document.querySelector("#vignetteTabs"),
+  vignetteMeta: document.querySelector("#vignetteMeta"),
+  vignetteName: document.querySelector("#vignetteName"),
+  vignetteScenario: document.querySelector("#vignetteScenario"),
+  vignettePrompts: document.querySelector("#vignettePrompts"),
+  vignetteStatuses: document.querySelector("#vignetteStatuses"),
+  vignetteNotes: document.querySelector("#vignetteNotes"),
+  vignetteScore: document.querySelector("#vignetteScore"),
+  vignetteSummary: document.querySelector("#vignetteSummary"),
+  surveyGrid: document.querySelector("#surveyGrid"),
+  surveyScore: document.querySelector("#surveyScore"),
+  surveySummary: document.querySelector("#surveySummary"),
+  reportPreview: document.querySelector("#reportPreview"),
+  downloadReport: document.querySelector("#downloadReport"),
+  resetProgress: document.querySelector("#resetProgress"),
 };
 
-const state = {
-  current: "stage",
-  answers: {},
-  order: [],
-  showingResult: false,
-  markdown: "",
-};
+function defaultState() {
+  return {
+    view: "home",
+    phase: "eu",
+    euIndex: 0,
+    euAnswers: {},
+    checklist: {},
+    selectedVignette: VIGNETTES[0].id,
+    vignetteStatus: Object.fromEntries(VIGNETTES.map((item) => [item.id, "todo"])),
+    vignetteNotes: Object.fromEntries(VIGNETTES.map((item) => [item.id, ""])),
+    survey: {},
+  };
+}
+
+function loadState() {
+  try {
+    return { ...defaultState(), ...(JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}) };
+  } catch {
+    return defaultState();
+  }
+}
+
+function saveState() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  } catch {
+    // If browser storage is unavailable, the prototype still works for the current session.
+  }
+}
 
 function init() {
-  dom.backBtn.addEventListener("click", handleBack);
-  dom.restartBtn.addEventListener("click", resetAll);
-  dom.downloadBtn.addEventListener("click", downloadPlan);
+  document.querySelectorAll("[data-start-tool]").forEach((button) => {
+    button.addEventListener("click", () => {
+      state.view = "tool";
+      state.phase = "eu";
+      saveState();
+      render();
+    });
+  });
+
+  dom.navLinks.forEach((link) => {
+    link.addEventListener("click", () => {
+      state.view = link.dataset.viewLink;
+      saveState();
+      render();
+    });
+  });
+
+  dom.phaseLinks.forEach((link) => {
+    link.addEventListener("click", () => {
+      state.view = "tool";
+      state.phase = link.dataset.phaseLink;
+      saveState();
+      render();
+    });
+  });
+
+  document.querySelectorAll("[data-next-phase]").forEach((button) => {
+    button.addEventListener("click", () => goRelativePhase(1));
+  });
+
+  document.querySelectorAll("[data-prev-phase]").forEach((button) => {
+    button.addEventListener("click", () => goRelativePhase(-1));
+  });
+
+  dom.previousQuestion.addEventListener("click", () => {
+    state.euIndex = Math.max(0, state.euIndex - 1);
+    saveState();
+    render();
+  });
+
+  dom.vignetteNotes.addEventListener("input", (event) => {
+    state.vignetteNotes[state.selectedVignette] = event.target.value;
+    saveState();
+    renderVignetteSummary();
+    renderReport();
+  });
+
+  dom.downloadReport.addEventListener("click", downloadReport);
+
+  dom.resetProgress.addEventListener("click", () => {
+    Object.assign(state, defaultState(), { view: "tool" });
+    saveState();
+    render();
+  });
+
+  render();
+}
+
+function goRelativePhase(direction) {
+  const current = PHASES.indexOf(state.phase);
+  state.view = "tool";
+  state.phase = PHASES[Math.min(PHASES.length - 1, Math.max(0, current + direction))];
+  saveState();
   render();
 }
 
 function render() {
+  renderViews();
+  renderPhases();
   renderQuestion();
-  renderPath();
-  dom.backBtn.disabled = state.order.length === 0 && !state.showingResult;
+  renderChecklist();
+  renderVignettes();
+  renderSurvey();
+  renderReport();
+}
+
+function renderViews() {
+  dom.views.forEach((view) => view.classList.toggle("active-view", view.id === state.view));
+  dom.navLinks.forEach((link) => link.classList.toggle("active", link.dataset.viewLink === state.view));
+}
+
+function renderPhases() {
+  dom.phases.forEach((phase) => phase.classList.toggle("active-phase", phase.dataset.phase === state.phase));
+  dom.phaseLinks.forEach((link) => link.classList.toggle("active", link.dataset.phaseLink === state.phase));
 }
 
 function renderQuestion() {
-  if (state.showingResult) {
-    dom.layerBadge.textContent = "Result";
-    dom.questionTitle.textContent = "Review your branch below";
-    dom.questionHelp.textContent = "Use Back to change an answer and recalculate.";
-    dom.options.innerHTML = "";
-    return;
-  }
+  const question = EU_QUESTIONS[state.euIndex];
+  const answeredCount = Object.keys(state.euAnswers).length;
+  dom.euProgress.textContent = `${answeredCount}/${EU_QUESTIONS.length}`;
+  dom.previousQuestion.disabled = state.euIndex === 0;
 
-  const q = QUESTIONS[state.current];
-  dom.layerBadge.textContent = `Layer ${q.layer} - ${q.short}`;
-  dom.questionTitle.textContent = q.prompt;
-  dom.questionHelp.textContent = q.help;
-  dom.options.innerHTML = "";
+  const tooltip = question.tooltip
+    ? `<button class="tooltip" type="button" aria-label="Uitleg bij dit begrip">i<span>${question.tooltip}</span></button>`
+    : "";
 
-  q.options.forEach((option) => {
-    const button = document.createElement("button");
-    button.className = "option-btn";
-    button.type = "button";
-    button.innerHTML = `<strong>${option.label}</strong><span>${option.note}</span>`;
-    button.addEventListener("click", () => chooseOption(option));
-    dom.options.appendChild(button);
-  });
-}
+  dom.questionCard.innerHTML = `
+    <p class="kicker">Vraag ${state.euIndex + 1} van ${EU_QUESTIONS.length}</p>
+    <div class="question-title-row">
+      <h2>${question.title}</h2>
+      ${tooltip}
+    </div>
+    <p>${question.help}</p>
+    <div class="option-grid">
+      ${question.options
+        .map(([value, label, note]) => {
+          const active = state.euAnswers[question.id] === value ? " active" : "";
+          return `<button class="option-button${active}" type="button" data-eu-answer="${value}">
+            <strong>${label}</strong>
+            <span>${note}</span>
+          </button>`;
+        })
+        .join("")}
+    </div>
+  `;
 
-function renderPath() {
-  dom.routeList.innerHTML = "";
-  state.order.forEach((id, index) => {
-    const li = document.createElement("li");
-    const q = QUESTIONS[id];
-    const answerValue = state.answers[id];
-    const answerLabel = answerLookup[id] && answerLookup[id][answerValue] ? answerLookup[id][answerValue] : "-";
-    li.textContent = `Layer ${index + 1}: ${q.short} -> ${answerLabel}`;
-    dom.routeList.appendChild(li);
-  });
-}
-
-function pruneAfter(questionId) {
-  const index = state.order.indexOf(questionId);
-  if (index === -1) {
-    return;
-  }
-  const removed = state.order.slice(index + 1);
-  removed.forEach((id) => {
-    delete state.answers[id];
-  });
-  state.order = state.order.slice(0, index + 1);
-}
-
-function chooseOption(option) {
-  const qId = state.current;
-
-  if (!state.order.includes(qId)) {
-    state.order.push(qId);
-  } else {
-    pruneAfter(qId);
-  }
-  state.answers[qId] = option.value;
-
-  if (option.next === "result") {
-    buildResult();
-    return;
-  }
-
-  state.current = option.next;
-  state.showingResult = false;
-  dom.resultCard.classList.add("hidden");
-  dom.downloadBtn.disabled = true;
-  render();
-}
-
-function handleBack() {
-  if (state.showingResult) {
-    state.showingResult = false;
-    dom.resultCard.classList.add("hidden");
-    const previous = state.order[state.order.length - 1];
-    if (previous) {
-      state.current = previous;
-    }
-    dom.downloadBtn.disabled = true;
-    render();
-    return;
-  }
-
-  if (state.order.length === 0) {
-    return;
-  }
-
-  const lastAnswered = state.order[state.order.length - 1];
-  if (state.current !== lastAnswered) {
-    state.current = lastAnswered;
-    render();
-    return;
-  }
-
-  const removed = state.order.pop();
-  delete state.answers[removed];
-  state.current = state.order.length > 0 ? state.order[state.order.length - 1] : "stage";
-  render();
-}
-
-function resetAll() {
-  state.current = "stage";
-  state.answers = {};
-  state.order = [];
-  state.showingResult = false;
-  state.markdown = "";
-  dom.resultCard.classList.add("hidden");
-  dom.downloadBtn.disabled = true;
-  render();
-}
-
-function buildResult() {
-  const profile = {
-    stage: state.answers.stage,
-    rightsImpact: state.answers.rightsImpact,
-    prohibitedSignals: state.answers.prohibitedSignals,
-    dataSensitivity: state.answers.dataSensitivity,
-    automation: state.answers.automation,
-    sourcing: state.answers.sourcing,
-    procurement: state.answers.procurement,
-    audience: state.answers.audience,
-    fallback: state.answers.fallback,
-    stressCoverage: state.answers.stressCoverage,
-    measurement: state.answers.measurement,
-  };
-
-  const model = generatePlan(profile);
-
-  dom.resultTitle.textContent = model.title;
-  dom.resultIntro.textContent = model.intro;
-
-  dom.profilePills.innerHTML = "";
-  model.pills.forEach((pill) => {
-    const span = document.createElement("span");
-    span.className = `pill${pill.warn ? " warn" : ""}`;
-    span.textContent = pill.label;
-    dom.profilePills.appendChild(span);
-  });
-
-  dom.planSteps.innerHTML = "";
-  model.steps.forEach((stepText) => {
-    const li = document.createElement("li");
-    li.textContent = stepText;
-    dom.planSteps.appendChild(li);
-  });
-
-  dom.branchReasons.innerHTML = "";
-  model.reasons.forEach((reason) => {
-    const li = document.createElement("li");
-    li.textContent = reason;
-    dom.branchReasons.appendChild(li);
-  });
-
-  dom.humanTableBody.innerHTML = "";
-  model.humanRows.forEach((row) => {
-    const tr = document.createElement("tr");
-    appendTextCell(tr, row.caseLabel);
-    appendTagCell(tr, row.better);
-    appendTagCell(tr, row.worseRisk);
-    appendTagCell(tr, row.quicker);
-    appendTagCell(tr, row.easier);
-    appendTextCell(tr, row.watchpoint);
-    dom.humanTableBody.appendChild(tr);
-  });
-  dom.humanSummary.textContent = model.humanSummary;
-
-  state.markdown = toMarkdown(model, profile);
-  state.showingResult = true;
-  dom.downloadBtn.disabled = false;
-  dom.resultCard.classList.remove("hidden");
-  render();
-}
-
-function appendTextCell(row, text) {
-  const td = document.createElement("td");
-  td.textContent = text;
-  row.appendChild(td);
-}
-
-function appendTagCell(row, status) {
-  const td = document.createElement("td");
-  const span = document.createElement("span");
-  span.className = `tag ${status.className}`;
-  span.textContent = status.label;
-  td.appendChild(span);
-  row.appendChild(td);
-}
-
-function generatePlan(profile) {
-  const prohibited = profile.prohibitedSignals === "yes";
-  const prohibitedUnclear = profile.prohibitedSignals === "unsure";
-  const sensitiveData = ["special", "biometric"].includes(profile.dataSensitivity);
-  const personalData = ["personal", "special", "biometric"].includes(profile.dataSensitivity);
-  const highRiskCandidate =
-    profile.rightsImpact === "yes" || profile.automation === "fully" || sensitiveData;
-  const vendorDependency = ["vendor", "hybrid"].includes(profile.sourcing);
-  const procurementGap = profile.procurement === "none" || profile.procurement === "partial";
-  const residentFacing = profile.audience === "civilians" || profile.audience === "both";
-  const staffFacing = profile.audience === "civil_servants" || profile.audience === "both";
-  const fallbackImmediate = profile.fallback === "immediate";
-  const fallbackNone = profile.fallback === "none";
-  const lowStressCoverage = profile.stressCoverage === "low";
-  const mediumStressCoverage = profile.stressCoverage === "medium";
-  const highStressCoverage = profile.stressCoverage === "high";
-  const measurementGap = profile.measurement === "none" || profile.measurement === "partial";
-  const robustMeasurement = profile.measurement === "robust";
-
-  const humanAnalysis = generateHumanMaatAnalysis(profile);
-  const highWorseRiskCount = humanAnalysis.rows.filter((row) => row.worseRisk.label === "High").length;
-  const harderCount = humanAnalysis.rows.filter((row) => row.easier.label === "Harder").length;
-  const likelyWorseCount = humanAnalysis.rows.filter((row) => row.better.label === "Worse").length;
-
-  const pills = [];
-  pills.push({ label: answerLookup.stage[profile.stage] || "Stage not set" });
-  if (prohibited) {
-    pills.push({ label: "Track: Stop-and-redesign", warn: true });
-  } else {
-    pills.push({
-      label: highRiskCandidate ? "Track: High-risk candidate" : "Track: Limited/moderate-risk",
-      warn: highRiskCandidate,
+  dom.questionCard.querySelectorAll("[data-eu-answer]").forEach((button) => {
+    button.addEventListener("click", () => {
+      state.euAnswers[question.id] = button.dataset.euAnswer;
+      if (state.euIndex < EU_QUESTIONS.length - 1) {
+        state.euIndex += 1;
+      } else {
+        state.phase = "checklist";
+      }
+      saveState();
+      render();
     });
-  }
-  pills.push({
-    label: residentFacing ? "Citizen-facing impact" : "Internal-first impact",
-    warn: residentFacing && !fallbackImmediate,
-  });
-  if (vendorDependency) {
-    pills.push({ label: "External provider dependency" });
-  }
-  if (personalData) {
-    pills.push({ label: "GDPR-heavy workload", warn: profile.dataSensitivity !== "personal" });
-  }
-  pills.push({
-    label: robustMeasurement ? "Menselijke maat measured" : "Menselijke maat not yet proven",
-    warn: !robustMeasurement,
   });
 
-  const reasons = [];
-  if (prohibited) {
-    reasons.push("You flagged indicators that can map to prohibited AI practices.");
-  }
-  if (prohibitedUnclear) {
-    reasons.push("Potential prohibited-practice exposure is still legally unclear.");
-  }
-  if (highRiskCandidate) {
-    reasons.push("Your answers indicate a likely high-impact or rights-sensitive use case.");
-  }
-  if (personalData) {
-    reasons.push("Personal-data processing requires GDPR legal basis and likely impact assessment.");
-  }
-  if (vendorDependency) {
-    reasons.push("Supplier governance and contractual controls are critical.");
-  }
-  if (procurementGap) {
-    reasons.push("Current procurement setup is not yet strong enough for repeatable compliant rollout.");
-  }
-  if (fallbackNone) {
-    reasons.push("No guaranteed human fallback creates a direct menselijke maat risk.");
-  }
-  if (lowStressCoverage) {
-    reasons.push("Very low 10-case stress-test coverage weakens evidence for real-world fairness.");
-  }
-  if (measurementGap) {
-    reasons.push("Without consistent better/worse/quicker/easier measurement, impact remains unverified.");
-  }
-  if (highWorseRiskCount >= 4) {
-    reasons.push(`${highWorseRiskCount} of 10 hard cases still show high risk of worse outcomes.`);
-  }
-  if (harderCount >= 4) {
-    reasons.push(`${harderCount} of 10 hard cases are likely harder than the current service journey.`);
-  }
-  if (likelyWorseCount >= 3) {
-    reasons.push(`${likelyWorseCount} of 10 hard cases are likely to have worse outcomes than baseline.`);
-  }
-  if (!residentFacing) {
-    reasons.push("Benefits to residents are indirect; frontline translation into service quality must be tested.");
-  }
-  if (reasons.length === 0) {
-    reasons.push("Your path fits a lower-risk adoption lane with relatively strong safeguards.");
-  }
-
-  const steps = [];
-  if (prohibited) {
-    steps.push(
-      "Freeze the current design immediately and run a legal red-team review before any procurement or pilot expansion."
-    );
-    steps.push(
-      "Redesign the use case to remove prohibited techniques and document the redesign decision in an AI use-case register."
-    );
-  }
-
-  if (profile.stage === "explore") {
-    steps.push(
-      "Start with one bounded use case and define measurable public value, success criteria, and explicit non-goals."
-    );
-  }
-  if (profile.stage === "pilot") {
-    steps.push(
-      "Pause scale-up and set pilot guardrails: scope limits, rollback trigger, and mandatory accountable human review."
-    );
-  }
-  if (profile.stage === "live") {
-    steps.push(
-      "Run a 30-day compliance and human-impact gap assessment on live systems before expanding functionality."
-    );
-  }
-
-  steps.push(
-    "Form a municipal AI governance cell (service owner, legal, DPO, procurement, security, citizen-service representative) with weekly decision logs."
-  );
-  steps.push(
-    "Classify each use case under the AI Act (prohibited, high-risk candidate, limited risk) and keep evidence auditable."
-  );
-
-  if (prohibited) {
-    steps.push(
-      "After redesign, restart risk classification from the beginning and require formal legal sign-off before pilot restart."
-    );
-  } else if (highRiskCandidate) {
-    steps.push(
-      "Treat the solution as high-risk candidate until proven otherwise; prepare technical documentation, risk management, human oversight, and post-market monitoring."
-    );
-    steps.push(
-      "Plan implementation milestones against 2 August 2026, when most AI Act obligations start to apply."
-    );
-  } else {
-    steps.push(
-      "Keep the system in a limited-risk lane: transparent disclosures, quality controls, and documented human fallback."
-    );
-  }
-
-  if (personalData) {
-    steps.push(
-      "Define GDPR lawful basis, minimization, retention, and security controls; run DPIA when risk thresholds are met."
-    );
-  } else {
-    steps.push("Maintain strict data minimization and avoid unnecessary personal-data ingestion.");
-  }
-
-  if (profile.automation === "fully") {
-    steps.push(
-      "Introduce mandatory human review, appeal pathways, and contestability before any legally significant decision output."
-    );
-  } else if (profile.automation === "human_loop") {
-    steps.push(
-      "Document exact override authority for staff and monitor override rates as a fairness and quality indicator."
-    );
-  } else {
-    steps.push(
-      "Constrain usage to assistive tasks and technically block direct automated decisioning."
-    );
-  }
-
-  if (vendorDependency) {
-    steps.push(
-      "Use AI-specific contract clauses: audit rights, model-change notifications, log access, incident SLAs, and sub-processor transparency."
-    );
-  }
-  if (procurementGap) {
-    steps.push(
-      "Build a standard AI procurement pack (technical questionnaire, legal clauses, security annex) before new tenders."
-    );
-  }
-
-  steps.push(
-    "Create a menselijke maat charter with service principles: dignity, accessibility, proportionality, and no dead-end channels."
-  );
-  steps.push(
-    "Run and document the 10 hardest-case benchmark against current systems using better/worse/quicker/easier scores before scaling."
-  );
-
-  if (residentFacing) {
-    steps.push(
-      "Provide multi-channel resident access (digital, phone, desk) and guarantee an immediate route to a human for vulnerable situations."
-    );
-  } else if (staffFacing) {
-    steps.push(
-      "For staff-facing tools, test downstream resident effects explicitly to ensure internal efficiency does not reduce resident service quality."
-    );
-  }
-
-  if (fallbackNone) {
-    steps.push(
-      "Implement a same-day human fallback SLA and publish escalation routes visible to residents and frontline staff."
-    );
-  }
-
-  if (lowStressCoverage || mediumStressCoverage) {
-    steps.push(
-      "Expand stress-test coverage to all 10 hard cases and include at least one real-world scenario per case type."
-    );
-  } else if (highStressCoverage) {
-    steps.push(
-      "Use completed stress-test evidence as a go/no-go gate in governance and procurement decisions."
-    );
-  }
-
-  if (measurementGap) {
-    steps.push(
-      "Stand up quarterly metrics segmented by residents and civil servants: completion, error correction, appeals, and channel drop-off."
-    );
-  } else {
-    steps.push(
-      "Keep quarterly menselijke maat reporting public and include corrective actions for any case that trends worse than baseline."
-    );
-  }
-
-  steps.push(
-    "Deliver role-based AI literacy training for procurement, frontline services, legal, and management with annual refresh cycles."
-  );
-  steps.push(
-    "Publish plain-language transparency notice: purpose, data used, human oversight, and complaint/appeal route."
-  );
-  steps.push(
-    "Set quarterly monitoring on drift, bias, incidents, vendor changes, and retirement criteria for underperforming systems."
-  );
-
-  const title = prohibited
-    ? "Branch outcome: Stop-and-redesign before implementation"
-    : highRiskCandidate
-      ? "Branch outcome: High-risk candidate implementation track"
-      : "Branch outcome: Limited/moderate-risk implementation track";
-
-  const intro = prohibited
-    ? "This branch prioritizes immediate risk containment, then controlled redesign aligned with EU requirements and menselijke maat safeguards."
-    : "This branch balances practical rollout with legal compliance, operational governance, and menselijke maat outcomes.";
-
-  return {
-    title,
-    intro,
-    pills,
-    reasons,
-    steps,
-    humanRows: humanAnalysis.rows,
-    humanSummary: humanAnalysis.summary,
-  };
+  dom.euAnswerList.innerHTML = EU_QUESTIONS.map((item) => {
+    const answer = state.euAnswers[item.id];
+    if (!answer) return "";
+    const option = item.options.find(([value]) => value === answer);
+    return `<li><strong>${item.title}</strong><br>${option[1]}</li>`;
+  }).join("");
 }
 
-function generateHumanMaatAnalysis(profile) {
-  const rows = PERSONAS.map((persona) => evaluatePersona(persona, profile));
-  const highRiskCount = rows.filter((row) => row.worseRisk.label === "High").length;
-  const hardCount = rows.filter((row) => row.easier.label === "Harder").length;
-  const worseCount = rows.filter((row) => row.better.label === "Worse").length;
-  const quickCount = rows.filter((row) => row.quicker.label === "Quicker").length;
+function renderChecklist() {
+  dom.checklistGrid.innerHTML = CHECKLIST.map((item) => `
+    <article class="row-question">
+      <div>
+        <h3>${item.title}</h3>
+        <p>${item.help}</p>
+      </div>
+      <div class="segmented">
+        ${SCORE_OPTIONS.map(([value, label]) => {
+          const active = state.checklist[item.id] === value ? " active" : "";
+          return `<button class="segment${active}" type="button" data-checklist="${item.id}" data-value="${value}">${label}</button>`;
+        }).join("")}
+      </div>
+    </article>
+  `).join("");
 
-  const summary = `${highRiskCount}/10 high worse-risk, ${hardCount}/10 harder, ${worseCount}/10 likely worse outcomes, ${quickCount}/10 quicker than baseline. Prioritize high-risk and harder cases before scale-up.`;
+  dom.checklistGrid.querySelectorAll("[data-checklist]").forEach((button) => {
+    button.addEventListener("click", () => {
+      state.checklist[button.dataset.checklist] = button.dataset.value;
+      saveState();
+      renderChecklist();
+      renderReport();
+    });
+  });
 
-  return { rows, summary };
+  const summary = getChecklistSummary();
+  dom.checklistScore.textContent = summary.label;
+  dom.checklistSummary.textContent = summary.text;
 }
 
-function evaluatePersona(persona, profile) {
-  let betterScore = 0;
-  let worseRiskScore = 0;
-  let quickerScore = 0;
-  let easierScore = 0;
+function renderVignettes() {
+  dom.vignetteTabs.innerHTML = VIGNETTES.map((item) => {
+    const active = item.id === state.selectedVignette ? " active" : "";
+    return `<button class="chip${active}" type="button" data-vignette="${item.id}">${item.label}</button>`;
+  }).join("");
 
-  const residentFacing = profile.audience === "civilians" || profile.audience === "both";
-  const fallback = profile.fallback;
+  dom.vignetteTabs.querySelectorAll("[data-vignette]").forEach((button) => {
+    button.addEventListener("click", () => {
+      state.selectedVignette = button.dataset.vignette;
+      saveState();
+      renderVignettes();
+    });
+  });
 
-  if (residentFacing) {
-    betterScore += 1;
-    quickerScore += 1;
-    easierScore += 1;
-  } else {
-    betterScore -= 1;
-    easierScore -= 1;
+  const current = VIGNETTES.find((item) => item.id === state.selectedVignette);
+  dom.vignetteMeta.textContent = current.label;
+  dom.vignetteName.textContent = current.title;
+  dom.vignetteScenario.textContent = current.scenario;
+  dom.vignettePrompts.innerHTML = current.prompts.map((prompt) => `<li>${prompt}</li>`).join("");
+  dom.vignetteStatuses.innerHTML = VIGNETTE_STATUS.map(([value, label]) => {
+    const active = state.vignetteStatus[current.id] === value ? " active" : "";
+    return `<button class="status-button${active}" type="button" data-status="${value}">${label}</button>`;
+  }).join("");
+  dom.vignetteNotes.value = state.vignetteNotes[current.id] || "";
+
+  dom.vignetteStatuses.querySelectorAll("[data-status]").forEach((button) => {
+    button.addEventListener("click", () => {
+      state.vignetteStatus[current.id] = button.dataset.status;
+      saveState();
+      renderVignettes();
+      renderReport();
+    });
+  });
+
+  renderVignetteSummary();
+}
+
+function renderVignetteSummary() {
+  const statuses = Object.values(state.vignetteStatus);
+  const done = statuses.filter((status) => status === "done").length;
+  const redesign = statuses.filter((status) => status === "redesign").length;
+  const notes = Object.values(state.vignetteNotes).filter((note) => note.trim()).length;
+  dom.vignetteScore.textContent = redesign > 0 ? `${redesign} herontwerp` : `${done}/${VIGNETTES.length} besproken`;
+  dom.vignetteSummary.textContent = `${done} casussen besproken, ${redesign} met herontwerpsignaal en ${notes} met notities.`;
+}
+
+function renderSurvey() {
+  dom.surveyGrid.innerHTML = SURVEY.map((item) => `
+    <article class="row-question">
+      <div>
+        <h3>${item.title}</h3>
+        <p>${item.help}</p>
+      </div>
+      <div class="segmented">
+        ${SCORE_OPTIONS.map(([value, label]) => {
+          const active = state.survey[item.id] === value ? " active" : "";
+          return `<button class="segment${active}" type="button" data-survey="${item.id}" data-value="${value}">${label}</button>`;
+        }).join("")}
+      </div>
+    </article>
+  `).join("");
+
+  dom.surveyGrid.querySelectorAll("[data-survey]").forEach((button) => {
+    button.addEventListener("click", () => {
+      state.survey[button.dataset.survey] = button.dataset.value;
+      saveState();
+      renderSurvey();
+      renderReport();
+    });
+  });
+
+  const summary = getSurveySummary();
+  dom.surveyScore.textContent = summary.label;
+  dom.surveySummary.textContent = summary.text;
+}
+
+function getChecklistSummary() {
+  return getScoreSummary(CHECKLIST, state.checklist, "checklist");
+}
+
+function getSurveySummary() {
+  return getScoreSummary(SURVEY, state.survey, "burgerperspectief");
+}
+
+function getScoreSummary(items, answers, label) {
+  const answered = items.filter((item) => answers[item.id]);
+  const total = items.reduce((sum, item) => {
+    const option = SCORE_OPTIONS.find(([value]) => value === answers[item.id]);
+    return sum + (option ? option[2] : 0);
+  }, 0);
+  const max = items.length * 2;
+  const grade = answered.length ? Math.round((total / max) * 10) : 0;
+  const weak = items.filter((item) => ["missing", "partial"].includes(answers[item.id])).map((item) => item.title);
+
+  if (!answered.length) {
+    return {
+      label: "Nog open",
+      grade,
+      weak,
+      text: `Vul de ${label} in om een score en aandachtspunten te krijgen.`,
+    };
   }
 
-  if (fallback === "immediate") {
-    betterScore += 1;
-    easierScore += 2;
-    worseRiskScore -= 1;
-  } else if (fallback === "delayed") {
-    worseRiskScore += 1;
-  } else if (fallback === "none") {
-    betterScore -= 1;
-    easierScore -= 2;
-    worseRiskScore += 3;
-  }
-
-  if (profile.stressCoverage === "high") {
-    betterScore += 1;
-    easierScore += 1;
-    worseRiskScore -= 1;
-  } else if (profile.stressCoverage === "medium") {
-    worseRiskScore += 1;
-  } else if (profile.stressCoverage === "low") {
-    betterScore -= 1;
-    easierScore -= 1;
-    worseRiskScore += 2;
-  }
-
-  if (profile.measurement === "robust") {
-    betterScore += 1;
-    worseRiskScore -= 1;
-  } else if (profile.measurement === "partial") {
-    worseRiskScore += 1;
-  } else if (profile.measurement === "none") {
-    betterScore -= 1;
-    worseRiskScore += 2;
-  }
-
-  if (profile.automation === "fully") {
-    quickerScore += 2;
-    betterScore -= 1;
-    easierScore -= 1;
-    worseRiskScore += 2;
-  } else if (profile.automation === "human_loop") {
-    quickerScore += 1;
-    worseRiskScore += 1;
-  }
-
-  if (profile.rightsImpact === "yes") {
-    worseRiskScore += 1;
-  } else if (profile.rightsImpact === "unsure") {
-    worseRiskScore += 1;
-  }
-
-  if (profile.prohibitedSignals === "yes") {
-    worseRiskScore += 3;
-    betterScore -= 1;
-  } else if (profile.prohibitedSignals === "unsure") {
-    worseRiskScore += 1;
-  }
-
-  if (profile.dataSensitivity === "special") {
-    worseRiskScore += 1;
-  } else if (profile.dataSensitivity === "biometric") {
-    worseRiskScore += 2;
-    betterScore -= 1;
-  }
-
-  if (profile.stage === "explore") {
-    quickerScore -= 1;
-    worseRiskScore += 1;
-  } else if (profile.stage === "pilot") {
-    worseRiskScore += 1;
-  }
-
-  if (profile.procurement === "none") {
-    worseRiskScore += 2;
-  } else if (profile.procurement === "partial") {
-    worseRiskScore += 1;
-  }
-
-  if (profile.sourcing === "vendor" || profile.sourcing === "hybrid") {
-    worseRiskScore += 1;
-  }
-
-  if (persona.highNeed) {
-    worseRiskScore += 1;
-    easierScore -= 1;
-  }
-  if (persona.plainLanguage) {
-    if (profile.stressCoverage !== "high") {
-      easierScore -= 1;
-    }
-  }
-  if (persona.digital) {
-    quickerScore -= 1;
-    if (fallback !== "immediate") {
-      worseRiskScore += 1;
-    }
-  }
-  if (persona.accessibility) {
-    if (profile.stressCoverage !== "high") {
-      easierScore -= 1;
-      worseRiskScore += 1;
-    }
-  }
-  if (persona.empathy) {
-    if (profile.automation === "fully") {
-      easierScore -= 1;
-      worseRiskScore += 1;
-    }
-    if (fallback === "immediate") {
-      easierScore += 1;
-    }
-  }
-  if (persona.complex) {
-    if (profile.automation === "fully") {
-      worseRiskScore += 1;
-      easierScore -= 1;
-    }
-  }
-  if (persona.translation) {
-    if (fallback === "none") {
-      easierScore -= 1;
-      worseRiskScore += 1;
-    }
-  }
-  if (persona.offline) {
-    quickerScore -= 1;
-    if (fallback === "none") {
-      worseRiskScore += 2;
-    }
-  }
-  if (persona.continuity) {
-    if (fallback === "immediate") {
-      betterScore += 1;
-    } else {
-      worseRiskScore += 1;
-    }
-  }
-  if (persona.trust) {
-    betterScore -= 1;
-    if (profile.measurement !== "robust") {
-      worseRiskScore += 1;
-    }
-    if (profile.dataSensitivity === "biometric") {
-      worseRiskScore += 1;
-    }
+  if (answered.length < items.length) {
+    return {
+      label: `${answered.length}/${items.length}`,
+      grade,
+      weak,
+      text: `De ${label} is deels ingevuld. Voorlopige score: ${grade}/10.`,
+    };
   }
 
   return {
-    caseLabel: persona.label,
-    better: mapBetter(betterScore),
-    worseRisk: mapWorseRisk(worseRiskScore),
-    quicker: mapQuicker(quickerScore),
-    easier: mapEasier(easierScore),
-    watchpoint: persona.watchpoint,
+    label: `${grade}/10`,
+    grade,
+    weak,
+    text: grade >= 7 ? `Sterke basis. Score: ${grade}/10.` : `Nog kwetsbaar. Score: ${grade}/10.`,
   };
 }
 
-function mapBetter(score) {
-  if (score >= 2) {
-    return makeStatus("Better", "good");
-  }
-  if (score === 1) {
-    return makeStatus("Slightly better", "warn");
-  }
-  if (score === 0) {
-    return makeStatus("Similar", "neutral");
-  }
-  return makeStatus("Worse", "bad");
+function classifyRoute() {
+  const answers = state.euAnswers;
+  const risks = [];
+  if (answers.prohibited === "yes") risks.push("Mogelijk verboden praktijk");
+  if (answers.prohibited === "maybe") risks.push("Juridische onzekerheid over verboden praktijk");
+  if (answers.rights !== "no" || answers.purpose === "decision") risks.push("Impact op rechten of toegang");
+  if (answers.data === "sensitive") risks.push("Kwetsbare of bijzondere data");
+  if (answers.human === "weak") risks.push("Menselijk toezicht is zwak");
+  if (answers.procurement !== "ready") risks.push("AI-afspraken zijn nog niet volledig");
+
+  const route = answers.prohibited === "yes" ? "Stop en herontwerp" : risks.length >= 3 ? "Verzwaarde waarborgen" : "Beheerst verder verkennen";
+  return { route, risks };
 }
 
-function mapWorseRisk(score) {
-  if (score >= 5) {
-    return makeStatus("High", "bad");
+function buildRecommendations() {
+  const { route, risks } = classifyRoute();
+  const checklist = getChecklistSummary();
+  const survey = getSurveySummary();
+  const recommendations = [];
+
+  if (route === "Stop en herontwerp") {
+    recommendations.push("Stop de huidige ontwerpkeuze en laat eerst juridisch toetsen of er sprake is van een verboden AI-praktijk.");
   }
-  if (score >= 3) {
-    return makeStatus("Medium", "warn");
+
+  if (risks.includes("Impact op rechten of toegang")) {
+    recommendations.push("Leg vast waar menselijke controle, bezwaar, herstel en uitleg beschikbaar zijn voor inwoners.");
   }
-  return makeStatus("Low", "good");
+
+  if (risks.includes("Kwetsbare of bijzondere data")) {
+    recommendations.push("Werk grondslag, dataminimalisatie, DPIA en beveiligingsmaatregelen uit voordat je opschaalt.");
+  }
+
+  if (risks.includes("AI-afspraken zijn nog niet volledig")) {
+    recommendations.push("Maak inkoopafspraken over auditrechten, logging, modelwijzigingen, incidenten en dataverwerking.");
+  }
+
+  if (checklist.weak.length) {
+    recommendations.push(`Werk deze punten uit de checklist verder uit: ${checklist.weak.slice(0, 2).join(", ")}.`);
+  }
+
+  if (survey.weak.length) {
+    recommendations.push(`Onderzoek deze burgerperspectieven extra: ${survey.weak.slice(0, 2).join(", ")}.`);
+  }
+
+  if (!recommendations.length) {
+    recommendations.push("De basis oogt werkbaar. Blijf meten of de toepassing voor inwoners echt begrijpelijker, menselijker en makkelijker wordt.");
+  }
+
+  return recommendations;
 }
 
-function mapQuicker(score) {
-  if (score >= 2) {
-    return makeStatus("Quicker", "good");
-  }
-  if (score === 1) {
-    return makeStatus("Slightly quicker", "warn");
-  }
-  if (score === 0) {
-    return makeStatus("Similar", "neutral");
-  }
-  return makeStatus("Slower", "bad");
+function renderReport() {
+  const { route, risks } = classifyRoute();
+  const checklist = getChecklistSummary();
+  const survey = getSurveySummary();
+  const recommendations = buildRecommendations();
+
+  dom.reportPreview.innerHTML = `
+    <article class="report-block">
+      <h3>Samenvatting</h3>
+      <p><strong>Route:</strong> ${route}</p>
+      <p><strong>Checklist:</strong> ${checklist.label} · <strong>Burgerperspectief:</strong> ${survey.label}</p>
+    </article>
+    <article class="report-block">
+      <h3>Belangrijkste risico's</h3>
+      <ul>${(risks.length ? risks : ["Geen grote rode vlaggen ingevuld."]).map((item) => `<li>${item}</li>`).join("")}</ul>
+    </article>
+    <article class="report-block">
+      <h3>Aanbevolen acties</h3>
+      <ol>${recommendations.map((item) => `<li>${item}</li>`).join("")}</ol>
+    </article>
+  `;
 }
 
-function mapEasier(score) {
-  if (score >= 2) {
-    return makeStatus("Easier", "good");
-  }
-  if (score === 1) {
-    return makeStatus("Slightly easier", "warn");
-  }
-  if (score === 0) {
-    return makeStatus("Similar", "neutral");
-  }
-  return makeStatus("Harder", "bad");
+function answerLabel(question, value) {
+  const option = question.options.find(([optionValue]) => optionValue === value);
+  return option ? option[1] : "Niet ingevuld";
 }
 
-function makeStatus(label, className) {
-  return { label, className };
-}
-
-function toMarkdown(model, profile) {
-  const answerLines = state.order
-    .map((id) => {
-      const q = QUESTIONS[id];
-      const answerLabel = answerLookup[id][state.answers[id]];
-      return `- Layer ${q.layer} (${q.short}): ${answerLabel}`;
+function tableRows(items, answers) {
+  return items
+    .map((item) => {
+      const option = SCORE_OPTIONS.find(([value]) => value === answers[item.id]);
+      return `| ${item.title} | ${option ? option[1] : "Niet ingevuld"} |`;
     })
     .join("\n");
+}
 
-  const reasonLines = model.reasons.map((reason) => `- ${reason}`).join("\n");
-  const stepLines = model.steps.map((step, idx) => `${idx + 1}. ${step}`).join("\n");
+function buildMarkdown() {
+  const { route, risks } = classifyRoute();
+  const checklist = getChecklistSummary();
+  const survey = getSurveySummary();
+  const recommendations = buildRecommendations();
 
-  const humanRows = model.humanRows
-    .map(
-      (row) =>
-        `| ${row.caseLabel} | ${row.better.label} | ${row.worseRisk.label} | ${row.quicker.label} | ${row.easier.label} | ${row.watchpoint} |`
-    )
-    .join("\n");
+  const euRows = EU_QUESTIONS.map((question) => `| ${question.title} | ${answerLabel(question, state.euAnswers[question.id])} |`).join("\n");
+  const vignetteRows = VIGNETTES.map((item) => {
+    const status = VIGNETTE_STATUS.find(([value]) => value === state.vignetteStatus[item.id]);
+    const note = state.vignetteNotes[item.id]?.trim() || "Geen notitie";
+    return `| ${item.title} | ${status ? status[1] : "Nog niet besproken"} | ${note} |`;
+  }).join("\n");
 
-  return `# EU Responsible AI Municipal Plan
+  return `# Menselijke Maat AI Verkenner
 
-## Branch
-${model.title}
+## 1. Samenvatting
 
-${model.intro}
+| Onderdeel | Uitkomst |
+| --- | --- |
+| Route | ${route} |
+| Checklist menselijke maat | ${checklist.label} |
+| Burgerperspectief | ${survey.label} |
 
-## Selected path
-${answerLines}
+## 2. EU-regels en governance
 
-## Why this branch
-${reasonLines}
+| Vraag | Antwoord |
+| --- | --- |
+${euRows}
 
-## Step-by-step plan
-${stepLines}
+## 3. Belangrijkste risico's
 
-## Menselijke maat stress test (10 hardest cases)
-Menselijke maat = human-centered and proportional public service quality, especially for vulnerable residents.
+${(risks.length ? risks : ["Geen grote rode vlaggen ingevuld."]).map((item) => `- ${item}`).join("\n")}
 
-| Case | Better | Worse risk | Quicker | Easier | Watchpoint |
-| --- | --- | --- | --- | --- | --- |
-${humanRows}
+## 4. Checklist menselijke maat
 
-${model.humanSummary}
+${checklist.text}
 
-## References
-- Project context: https://www.instituutgak.nl
-- AI Act (Regulation (EU) 2024/1689): https://eur-lex.europa.eu/eli/reg/2024/1689/oj
-- European Commission AI policy page: https://digital-strategy.ec.europa.eu/en/policies/regulatory-framework-ai
-- GDPR (Regulation (EU) 2016/679): https://eur-lex.europa.eu/eli/reg/2016/679/oj
+| Vraag | Beoordeling |
+| --- | --- |
+${tableRows(CHECKLIST, state.checklist)}
 
-Generated on: ${new Date().toISOString()}
-Profile stage: ${profile.stage}
+## 5. Worst-case users
+
+| Vignette | Status | Notitie |
+| --- | --- | --- |
+${vignetteRows}
+
+## 6. Burgerperspectief
+
+${survey.text}
+
+| Vraag | Beoordeling |
+| --- | --- |
+${tableRows(SURVEY, state.survey)}
+
+## 7. Aanbevolen acties
+
+${recommendations.map((item, index) => `${index + 1}. ${item}`).join("\n")}
+
+## 8. Toekomstmodules
+
+- LLM-documentassessment: vraagt backend, validatieset, logging, promptbeheer en menselijke review.
+- Chatbot-interview: vraagt consent, sessiebeheer, opslagbeleid, moderatie en escalatie naar een mens.
+
+Gegenereerd op ${new Date().toLocaleString("nl-NL")}.
 `;
 }
 
-function downloadPlan() {
-  if (!state.markdown) {
-    return;
-  }
-  const blob = new Blob([state.markdown], { type: "text/markdown;charset=utf-8" });
+function downloadReport() {
+  const blob = new Blob([buildMarkdown()], { type: "text/markdown;charset=utf-8" });
   const url = URL.createObjectURL(blob);
   const anchor = document.createElement("a");
   anchor.href = url;
-  anchor.download = "municipal-eu-ai-plan.md";
+  anchor.download = "menselijke-maat-ai-verkenner-rapport.md";
   document.body.appendChild(anchor);
   anchor.click();
   document.body.removeChild(anchor);
