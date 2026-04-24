@@ -1,124 +1,291 @@
 <!doctype html>
-<html lang="en">
+<html lang="nl">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>EU Responsible AI Roadmap for Municipalities</title>
+    <title>Menselijke Maat AI Verkenner</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Space+Grotesk:wght@400;500;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@700&family=Nunito:wght@400;600;700;800&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <div class="background-glow" aria-hidden="true"></div>
-    <header class="hero">
-      <p class="eyebrow">Municipal AI Navigator (EU)</p>
-      <h1>Build a Responsible AI Plan in Layers</h1>
-      <p>
-        Answer each layer. The tool branches into a tailored step-by-step implementation path for municipalities.
-      </p>
+    <header class="site-header">
+      <a class="brand" href="#home" data-view-link="home" aria-label="Naar de startpagina">
+        <span class="brand-mark" aria-hidden="true">⌾</span>
+        <span>
+          <strong>Menselijke</strong>
+          <em>maat</em>
+        </span>
+      </a>
+
+      <nav class="top-nav" aria-label="Hoofdnavigatie">
+        <button class="nav-link active" type="button" data-view-link="home">Over deze tool</button>
+        <button class="nav-link" type="button" data-view-link="knowledge">Kennisbank</button>
+        <button class="nav-link" type="button" data-view-link="tools">Wat voor tools zijn er?</button>
+      </nav>
+
+      <button class="info-button" type="button" data-view-link="knowledge" aria-label="Meer informatie">i</button>
     </header>
 
-    <main class="layout">
-      <section class="card question-card reveal">
-        <div class="card-meta">
-          <span id="layerBadge" class="layer-badge"></span>
-          <div class="actions">
-            <button id="backBtn" class="btn btn-muted" type="button">Back</button>
-            <button id="restartBtn" class="btn btn-muted" type="button">Start over</button>
+    <main>
+      <section id="home" class="view active-view" aria-labelledby="homeTitle">
+        <div class="hero">
+          <div class="hero-copy">
+            <p class="kicker">Prototype voor gemeenten en publieke dienstverleners</p>
+            <h1 id="homeTitle">Menselijke Maat AI Verkenner</h1>
+            <p>
+              Een interactieve routeplanner plus onderzoekswerkbank om AI-toepassingen in de sociale zekerheid te
+              toetsen op menselijke maat, EU-verantwoordelijkheid en uitvoerbaarheid in de praktijk.
+            </p>
+
+            <div class="hero-buttons" aria-label="Snelkeuzes">
+              <button class="big-button primary" type="button" data-view-link="knowledge">
+                Kennisbank <span aria-hidden="true">→</span>
+              </button>
+              <button class="big-button primary" type="button" data-start-tool>
+                Menselijke Maat Tool <span aria-hidden="true">→</span>
+              </button>
+              <button class="big-button secondary" type="button" data-view-link="tools">
+                Wat voor tools zijn er? <span aria-hidden="true">→</span>
+              </button>
+            </div>
           </div>
+
+          <img class="hero-image" src="assets/route-sign.png" alt="Illustratie van een wegwijzer met menselijkheid, context, afweging en actie" />
         </div>
-        <h2 id="questionTitle"></h2>
-        <p id="questionHelp" class="support-text"></p>
-        <div id="options" class="options"></div>
+
+        <section class="how-section" aria-labelledby="howTitle">
+          <h2 id="howTitle">Hoe werkt het?</h2>
+          <p>De beslisboom stelt vragen over een situatie. Samen verken je opties en kom je tot een keuze die past bij de menselijke maat.</p>
+          <div class="how-cards">
+            <article class="how-card">
+              <span>1</span>
+              <img src="assets/how-it-works-strip.png" alt="" />
+              <h3>Beoordeel de situatie</h3>
+              <p>Je krijgt steeds een korte vraag of dilemma uit de praktijk.</p>
+            </article>
+            <article class="how-card">
+              <span>2</span>
+              <img src="assets/route-sign.png" alt="" />
+              <h3>Verken de opties</h3>
+              <p>De tool leidt je langs regelgeving, menselijke maat en burgerperspectief.</p>
+            </article>
+            <article class="how-card">
+              <span>3</span>
+              <img src="assets/team-table.png" alt="" />
+              <h3>Kies wat past</h3>
+              <p>Je ontvangt een rapport met knelpunten, acties en vervolgstappen.</p>
+            </article>
+          </div>
+        </section>
+
+        <section class="ready-band" aria-labelledby="readyTitle">
+          <div>
+            <h2 id="readyTitle">Klaar om te beginnen?</h2>
+            <p>Gebruik de beslisboom als reflectietool, in teamgesprekken of bij lastige keuzes in de praktijk.</p>
+            <button class="big-button warm" type="button" data-start-tool>Start de beslisboom <span aria-hidden="true">→</span></button>
+            <p class="trust-line">Geen registratie nodig · voortgang blijft lokaal in deze browser</p>
+          </div>
+          <img src="assets/team-table.png" alt="Illustratie van een team aan tafel" />
+        </section>
       </section>
 
-      <aside class="card path-card reveal">
-        <h2>Your Path</h2>
-        <ol id="routeList"></ol>
-        <button id="downloadBtn" class="btn btn-primary" type="button" disabled>
-          Download plan (.md)
-        </button>
-      </aside>
+      <section id="tool" class="view tool-view" aria-labelledby="toolTitle">
+        <div class="tool-shell">
+          <aside class="phase-sidebar" aria-label="Onderdelen">
+            <button class="phase-tab active" type="button" data-phase-link="eu">1. EU-regels</button>
+            <button class="phase-tab" type="button" data-phase-link="checklist">2. Checklist</button>
+            <button class="phase-tab" type="button" data-phase-link="vignettes">3. Worst-case users</button>
+            <button class="phase-tab" type="button" data-phase-link="citizens">4. Burgerperspectief</button>
+            <button class="phase-tab" type="button" data-phase-link="report">5. Rapport</button>
+          </aside>
 
-      <section id="resultCard" class="card result-card hidden reveal">
-        <h2 id="resultTitle"></h2>
-        <p id="resultIntro" class="support-text"></p>
-        <div id="profilePills" class="pill-row"></div>
+          <section class="tool-panel">
+            <div class="tool-topbar">
+              <div>
+                <p class="kicker">Menselijke Maat Tool</p>
+                <h1 id="toolTitle">Beslisboom</h1>
+              </div>
+              <button class="small-button ghost" type="button" id="resetProgress">Reset voortgang</button>
+            </div>
 
-        <h3>Step-by-step plan</h3>
-        <ol id="planSteps" class="plan-list"></ol>
+            <section class="phase active-phase" data-phase="eu" aria-labelledby="euTitle">
+              <div class="phase-heading">
+                <div>
+                  <p class="kicker">Stap 1 van 5</p>
+                  <h2 id="euTitle">Eerst: volgen we de EU-regels?</h2>
+                  <p>Dit deel gaat alleen over AI Act, gegevens, besluitvorming en inkoop. Daarna ga je door naar menselijke maat.</p>
+                </div>
+                <div class="progress-ring" id="euProgress">0/7</div>
+              </div>
 
-        <h3>Why this branch</h3>
-        <ul id="branchReasons"></ul>
+              <div class="question-area">
+                <div id="questionCard" class="question-card"></div>
+                <aside class="answer-summary">
+                  <h3>Antwoorden tot nu toe</h3>
+                  <ol id="euAnswerList"></ol>
+                </aside>
+              </div>
 
-        <h3>Menselijke maat stress test (10 hardest cases)</h3>
-        <p class="support-text">
-          Menselijke maat here means practical fairness and human-centered service quality for residents who are
-          usually hardest to serve.
-        </p>
-        <div class="table-wrap">
-          <table class="human-table">
-            <thead>
-              <tr>
-                <th>Case</th>
-                <th>Better</th>
-                <th>Worse risk</th>
-                <th>Quicker</th>
-                <th>Easier</th>
-                <th>Watchpoint</th>
-              </tr>
-            </thead>
-            <tbody id="humanTableBody"></tbody>
-          </table>
+              <div class="phase-actions">
+                <button class="small-button" type="button" id="previousQuestion">← Vorige vraag</button>
+                <button class="small-button primary" type="button" data-next-phase>Door naar checklist →</button>
+              </div>
+            </section>
+
+            <section class="phase" data-phase="checklist" aria-labelledby="checklistTitle">
+              <div class="phase-heading">
+                <div>
+                  <p class="kicker">Stap 2 van 5</p>
+                  <h2 id="checklistTitle">Checklist menselijke maat</h2>
+                  <p>Korte, concretere vragen voor ambtenaren. Beantwoord ze op basis van wat nu al geregeld is.</p>
+                </div>
+                <span class="score-badge" id="checklistScore">Nog open</span>
+              </div>
+              <div id="checklistGrid" class="question-list"></div>
+              <p id="checklistSummary" class="phase-note"></p>
+              <div class="phase-actions sticky-next">
+                <button class="small-button" type="button" data-prev-phase>← Terug</button>
+                <button class="small-button primary" type="button" data-next-phase>Door naar worst-case users →</button>
+              </div>
+            </section>
+
+            <section class="phase" data-phase="vignettes" aria-labelledby="vignetteTitle">
+              <div class="phase-heading">
+                <div>
+                  <p class="kicker">Stap 3 van 5</p>
+                  <h2 id="vignetteTitle">Vignettes van worst-case users</h2>
+                  <p>Bespreek per casus waar het proces voor mensen kan vastlopen of onmenselijk kan voelen.</p>
+                </div>
+                <span class="score-badge" id="vignetteScore">Nog open</span>
+              </div>
+              <div id="vignetteTabs" class="chip-row"></div>
+              <div class="vignette-layout">
+                <div>
+                  <p class="kicker" id="vignetteMeta"></p>
+                  <h3 id="vignetteName"></h3>
+                  <p id="vignetteScenario"></p>
+                  <ul id="vignettePrompts"></ul>
+                </div>
+                <div>
+                  <div id="vignetteStatuses" class="status-grid"></div>
+                  <label for="vignetteNotes">Notities</label>
+                  <textarea id="vignetteNotes" rows="6" placeholder="Welke ontwerpactie volgt uit deze casus?"></textarea>
+                </div>
+              </div>
+              <p id="vignetteSummary" class="phase-note"></p>
+              <div class="phase-actions sticky-next">
+                <button class="small-button" type="button" data-prev-phase>← Terug</button>
+                <button class="small-button primary" type="button" data-next-phase>Door naar burgerperspectief →</button>
+              </div>
+            </section>
+
+            <section class="phase" data-phase="citizens" aria-labelledby="citizenTitle">
+              <div class="phase-heading">
+                <div>
+                  <p class="kicker">Stap 4 van 5</p>
+                  <h2 id="citizenTitle">Korte vragenlijst burgerperspectief</h2>
+                  <p>Gebruik dit als interviewscript of quick scan van het bestaande proces.</p>
+                </div>
+                <span class="score-badge" id="surveyScore">Nog open</span>
+              </div>
+              <div id="surveyGrid" class="question-list"></div>
+
+              <div class="placeholder-row">
+                <article>
+                  <h3>LLM-assessment</h3>
+                  <p>Placeholder: later kan een taalmodel beleidsdocumenten lezen en aandachtspunten plus rapportcijfer geven.</p>
+                  <span>Backend, validatie en menselijke review nodig</span>
+                </article>
+                <article>
+                  <h3>Chatbot-interview</h3>
+                  <p>Placeholder: later kan een chatbot inwoners interviewen over het bestaande proces.</p>
+                  <span>Consent, opslagbeleid en escalatie nodig</span>
+                </article>
+              </div>
+
+              <p id="surveySummary" class="phase-note"></p>
+              <div class="phase-actions sticky-next">
+                <button class="small-button" type="button" data-prev-phase>← Terug</button>
+                <button class="small-button primary" type="button" data-next-phase>Bekijk rapport →</button>
+              </div>
+            </section>
+
+            <section class="phase" data-phase="report" aria-labelledby="reportTitle">
+              <div class="phase-heading">
+                <div>
+                  <p class="kicker">Stap 5 van 5</p>
+                  <h2 id="reportTitle">Rapport en vervolgstappen</h2>
+                  <p>Dit rapport is netjes opgemaakt als Markdown en neemt de ingevulde onderdelen mee.</p>
+                </div>
+                <button class="small-button primary" type="button" id="downloadReport">Download MD</button>
+              </div>
+              <div id="reportPreview" class="report-preview"></div>
+              <div class="phase-actions sticky-next">
+                <button class="small-button" type="button" data-prev-phase>← Terug</button>
+                <button class="small-button primary" type="button" data-view-link="home">Afronden</button>
+              </div>
+            </section>
+          </section>
         </div>
-        <p id="humanSummary" class="support-text"></p>
       </section>
 
-      <section class="card timeline-card reveal">
-        <h2>EU timeline snapshot (as of 25 February 2026)</h2>
-        <ul>
-          <li>2 February 2025: AI literacy and prohibited-practice rules started to apply.</li>
-          <li>2 August 2025: GPAI-model obligations and governance rules started to apply.</li>
-          <li>2 August 2026: Most AI Act obligations and enforcement begin (incl. Annex III high-risk systems).</li>
-          <li>2 August 2027: High-risk AI embedded in regulated products gets extended transition.</li>
-        </ul>
+      <section id="knowledge" class="view info-view" aria-labelledby="knowledgeTitle">
+        <div class="info-hero">
+          <div>
+            <p class="kicker">Kennisbank</p>
+            <h1 id="knowledgeTitle">Begrippen, kaders en uitleg</h1>
+            <p>Een compacte kennislaag voor teams die snel dezelfde taal willen spreken voordat ze de beslisboom invullen.</p>
+          </div>
+          <img src="assets/knowledge-books.png" alt="Illustratie van boeken" />
+        </div>
+        <div class="info-grid">
+          <article>
+            <h2>AI Act in gewone taal</h2>
+            <p>Wat betekent high-risk, verboden praktijk, GPAI en menselijk toezicht voor een gemeentelijk project?</p>
+          </article>
+          <article>
+            <h2>Menselijke maat</h2>
+            <p>Hoe vertaal je waardigheid, contact, proportionaliteit en begrijpelijkheid naar ontwerp- en proceskeuzes?</p>
+          </article>
+          <article>
+            <h2>Tooltips in de beslisboom</h2>
+            <p>Begrippen zoals social scoring, DPIA en biometrie krijgen uitleg precies op het moment dat ze opduiken.</p>
+          </article>
+        </div>
       </section>
 
-      <section class="card refs-card reveal">
-        <h2>Primary references</h2>
-        <ul>
-          <li>
-            <a href="https://www.instituutgak.nl" target="_blank" rel="noopener noreferrer"
-              >Project context: Instituut Gak</a
-            >
-          </li>
-          <li>
-            <a href="https://eur-lex.europa.eu/eli/reg/2024/1689/oj" target="_blank" rel="noopener noreferrer"
-              >AI Act (Regulation (EU) 2024/1689)</a
-            >
-          </li>
-          <li>
-            <a
-              href="https://digital-strategy.ec.europa.eu/en/policies/regulatory-framework-ai"
-              target="_blank"
-              rel="noopener noreferrer"
-              >European Commission AI Act overview and timeline</a
-            >
-          </li>
-          <li>
-            <a href="https://eur-lex.europa.eu/eli/reg/2016/679/oj" target="_blank" rel="noopener noreferrer"
-              >GDPR (Regulation (EU) 2016/679)</a
-            >
-          </li>
-        </ul>
-        <p class="legal-note">
-          Informational planning aid, not legal advice. Validate decisions with municipal legal counsel and your
-          national competent authority.
-        </p>
+      <section id="tools" class="view info-view" aria-labelledby="toolsTitle">
+        <div class="info-hero">
+          <div>
+            <p class="kicker">Inspiratiebibliotheek</p>
+            <h1 id="toolsTitle">Wat voor tools zijn er?</h1>
+            <p>De verkenner combineert meerdere methodes. Sommige werken al statisch; andere vragen later een backend.</p>
+          </div>
+          <img src="assets/toolbox.png" alt="Illustratie van een gereedschapskist" />
+        </div>
+        <div class="info-grid">
+          <article>
+            <h2>Beslisboom</h2>
+            <p>Een gestructureerde route langs EU-regels, menselijke maat en uitvoeringsvragen.</p>
+          </article>
+          <article>
+            <h2>Checklist</h2>
+            <p>Een korte zelfscan die laat zien waar de menselijke maat nog onvoldoende is uitgewerkt.</p>
+          </article>
+          <article>
+            <h2>Vignettes</h2>
+            <p>Worst-case users maken abstracte risico's bespreekbaar in teamgesprekken.</p>
+          </article>
+          <article>
+            <h2>LLM en chatbot</h2>
+            <p>Toekomstmodules voor documentanalyse en burgerinterviews, pas na validatie en backend-inrichting.</p>
+          </article>
+        </div>
       </section>
     </main>
 
